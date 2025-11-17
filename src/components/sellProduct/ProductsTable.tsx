@@ -50,6 +50,13 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
     setSelectedProducts(newSelected);
     onChange(newSelected);
   };
+  const updatePrice = (id: string, price: number) => {
+    const newSelected = selectedProducts
+      .map((p) => (p.id === id ? { ...p, sellPrice: price } : p))
+      .filter((p) => p.qty >= 0);
+    setSelectedProducts(newSelected);
+    onChange(newSelected);
+  };
 
   // حذف المنتج
   const removeProduct = (id: string) => {
@@ -109,7 +116,15 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
               <tr key={p.id}>
                 <td className="border p-1">{p.name}</td>
                 <td className="border p-1">{p.code}</td>
-                <td className="border p-1">${p.sellPrice}</td>
+                <td className="border p-1">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={p.sellPrice}
+                    onChange={(e) => updatePrice(p.id, Number(e.target.value))}
+                    className="w-16"
+                  />
+                </td>
                 <td className="border p-1">
                   <Input
                     type="number"
