@@ -6,7 +6,6 @@ import SellDetails from "./pages/SellDetails";
 const Products = React.lazy(() => import("@/pages/Products"));
 const Dashboard = React.lazy(() => import("@/pages/Dashboard"));
 const SellProduct = React.lazy(() => import("@/pages/SellProduct"));
-const Analytics = React.lazy(() => import("@/pages/Analytics"));
 const NotFound = React.lazy(() => import("@/pages/NotFound"));
 const Login = React.lazy(() => import("@/pages/Login"));
 const SignUp = React.lazy(() => import("@/pages/SignUp"));
@@ -28,7 +27,6 @@ export const routesConfig = [
   { path: "/suppliers", element:  <Suppliers /> },
   { path: "/customers", element:  <Customers /> },
   { path: "/dashboard", element: <PrivateRoute allowedRoles={["admin", "dealer"]}><Dashboard /></PrivateRoute> },
-  { path: "/analytics", element: <PrivateRoute allowedRoles={["admin"]}><Analytics /></PrivateRoute> },
   { path: "/sellProduct", element: <SellProduct /> },
   { path: "/financialStatement", element: <FinancialStatement /> },
   { path: "/SupplierDetails", element: <SupplierDetails /> },
