@@ -120,6 +120,11 @@ export function DataTable({
     if (key === "amount" && amountBold) {
       return <span className="text-primary font-extrabold text-xl">{value}</span>;
     }
+    if (key === "totalPrice") {
+      return (
+        <span className="">{value.toFixed(2)}</span>
+      );
+    }
     if (key === "balance") {
       return value > 0 ? (
         <span className="text-green-700 font-bold text-lg">له {value}</span>

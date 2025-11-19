@@ -65,6 +65,7 @@ export default function ProductDetails() {
     { key: "id", label: "الرمز", sortable: true, hidden: true },
     { key: "totalPrice", label: "اجمالي السعر", sortable: true },
     { key: "supplierName", label: "اسم المورد", sortable: true },
+    { key: "supplierId", label: "اسم المورد", sortable: true, hidden: true },
     { key: "quantity", label: "الكمية", sortable: true },
     { key: "date", label: "التاريخ", sortable: true },
   ]
@@ -72,10 +73,11 @@ export default function ProductDetails() {
   const salesColumns = [
     { key: "id", label: "الرمز", sortable: true, hidden: true },
     { key: "totalPrice", label: "اجمالي السعر", sortable: true },
-    { key: "customerName", label: "اسم المورد", sortable: true },
+    { key: "customerName", label: "اسم الزبون", sortable: true },
+    { key: "customerId", label: "اسم الزبون", sortable: true, hidden: true },
     { key: "quantity", label: "الكمية", sortable: true },
     { key: "date", label: "التاريخ", sortable: true },
-  ]
+  ];
 
   type ProductData = {
     product: {
@@ -111,7 +113,7 @@ export default function ProductDetails() {
   }
 
   function transformToProfitData(data: ProductProfitData) {
-    return data.sells.map((sell) => {
+    return data?.sells?.map((sell) => {
       const totalSell = sell.products.reduce(
         (sum, p) => sum + p.qty * p.sellPrice,
         0
@@ -124,7 +126,7 @@ export default function ProductDetails() {
 
       return {
         name: new Date(sell.date).toLocaleDateString(),
-        profit,
+        profit: profit.toFixed(3),
       }
     })
   }
@@ -146,7 +148,7 @@ export default function ProductDetails() {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {formData &&
             Object.entries(formData).map(([key, value]) => {
-              if (key === "id") return null
+              if (key === "id") return null;
               return (
                 <p
                   key={key}
@@ -156,22 +158,22 @@ export default function ProductDetails() {
                     {key == "payPrice"
                       ? "سعر الشراء"
                       : key == "unit"
-                      ? "الواحدة"
-                      : key == "updatedDate"
-                      ? "اخر تعديل"
-                      : key == "code"
-                      ? "الرمز"
-                      : key == "warehouse"
-                      ? "المخزن"
-                      : key == "sellPrice"
-                      ? "سعر المبيع"
-                      : key == "quantity"
-                      ? "الكمية"
-                      : key == "category"
-                      ? "الفئة"
-                      : key == "name"
-                      ? "الاسم"
-                      : key}
+                        ? "الواحدة"
+                        : key == "updatedDate"
+                          ? "اخر تعديل"
+                          : key == "code"
+                            ? "الرمز"
+                            : key == "warehouse"
+                              ? "المخزن"
+                              : key == "sellPrice"
+                                ? "سعر المبيع"
+                                : key == "quantity"
+                                  ? "الكمية"
+                                  : key == "category"
+                                    ? "الفئة"
+                                    : key == "name"
+                                      ? "الاسم"
+                                      : key}
                     :
                   </label>
                   {key.includes("date") &&
@@ -192,20 +194,19 @@ export default function ProductDetails() {
                   )}
                   <span className="absolute bottom-0 right-0 w-full h-[2px] bg-primary-500 scale-x-0 group-hover:scale-x-100 origin-right transition-transform duration-300"></span>
                 </p>
-              )
+              );
             })}
-            <Button
-              className="col-span-2"
-              variant="destructive"
-              onClick={() => 
-                (window.confirm("هل انت متأكد من عملية الحذف")) ?
-                  deleteMutation.mutate(productState.id)
-                :
-                  {}
-              }
-            >
-              حذف المنتج
-            </Button>
+          <Button
+            className="col-span-2"
+            variant="destructive"
+            onClick={() =>
+              window.confirm("هل انت متأكد من عملية الحذف")
+                ? deleteMutation.mutate(productState.id)
+                : {}
+            }
+          >
+            حذف المنتج
+          </Button>
         </CardContent>
       </Card>
 
@@ -239,15 +240,25 @@ export default function ProductDetails() {
             title="عمليات الشراء"
             data={data ? Object.values(data.purchases) : []}
             columns={purchasesColumns}
+            onRowClick={(row) => {
+              navigate("/SupplierDetails", {
+                state: { id: row.supplierId },
+              });
+            }}
           />
           <DataTable
             className="w-full"
             title="عمليات البيع"
             data={data ? Object.values(data.sells) : []}
             columns={salesColumns}
+            onRowClick={(row) => {
+              navigate("/customerDetails", {
+                state: { id: row.customerId },
+              });
+            }}
           />
         </CardContent>
       </Card>
     </DashboardLayout>
-  )
+  );
 }

@@ -46,7 +46,7 @@ export default function Suppliers() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title="ديون للموردين"
-                    value={suppliersDebt || 0}
+                    value={suppliersDebt.toFixed(2) || 0}
                     icon={HandCoins}
                 />
             </div>

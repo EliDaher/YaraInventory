@@ -51,23 +51,25 @@ export default function Dashboard() {
     queryFn: getAllCustomer,
   });
 
-  // ✅ تحويلها لمصفوفة مناسبة للمخطط الدائري
   const pieData = Object.values(sells || {}).reduce(
     (acc: Record<string, number>, sell: any) => {
-      sell.products.forEach((prod: any) => {
-        if (!acc[prod.name]) acc[prod.name] = 0;
-        acc[prod.name] += prod.qty || 0; // جمع الكمية
+      sell?.products?.forEach((prod: any) => {
+        if (!acc[prod.warehouse]) acc[prod.warehouse] = 0;
+        acc[prod.warehouse] += 1; // كل مرة يظهر المنتج نزيد 1
       });
-      return acc; // ⚠️ هنا نرجع acc نفسه وليس مصفوفة
+      return acc;
     },
-    {}, // البداية كـ كائن فارغ
+    {},
   );
 
-  // تحويل الكائن لمصفوفة مناسبة للمخطط
-  const pieChartData = Object.entries(pieData).map(([name, value]) => ({
-    name,
-    value,
+
+  const pieChartData = Object.entries(pieData)
+    ?.slice(0, 5)
+    ?.map(([name, value]) => ({
+      name,
+      value,
   }));
+
 
   const grouped =
     payments?.reduce(
@@ -96,8 +98,8 @@ export default function Dashboard() {
     grouped as Record<string, { income: number; expense: number }>,
   ).map(([day, { income, expense }]) => ({
     day,
-    income,
-    expense,
+    income: Number(income.toFixed(3) || 0),
+    expense: Number(expense.toFixed(3)) || 0,
   }));
 
   // ✅ supplierMap لتسريع البحث
@@ -144,8 +146,8 @@ export default function Dashboard() {
             <StatsCard
               onClick={() => {}}
               title="إجمالي المقبوضات"
-              description={`اليوم: ${todayIncome}`}
-              value={totalIncome || 0}
+              description={`اليوم: ${todayIncome.toFixed(3)}`}
+              value={totalIncome.toFixed(3) || 0}
               icon={ArrowDown}
               className="rounded-br-none"
             />
@@ -160,8 +162,8 @@ export default function Dashboard() {
             <StatsCard
               onClick={() => {}}
               title="إجمالي المصروفات"
-              description={`اليوم: ${todayExpense}`}
-              value={totalExpense || 0}
+              description={`اليوم: ${todayExpense.toFixed(3)}`}
+              value={totalExpense.toFixed(3) || 0}
               icon={ArrowUp}
               className="rounded-br-none"
             />
@@ -214,7 +216,7 @@ export default function Dashboard() {
             />
 
             <ChartContainer
-              title="توزع المبيعات"
+              title="توزيع المنتجات حسب المخازن"
               data={pieChartData ? (pieChartData as any[]) : []}
               type="pie"
               dataKey="value"
@@ -246,8 +248,8 @@ export default function Dashboard() {
                   productsName:
                     sell.products.map((p) => p.name).join(", ") ?? 0,
                   customerName:
-                    customer?.filter((c) => c.id === sell.customerId)[0]?.name ||
-                    "",
+                    customer?.filter((c) => c.id === sell.customerId)[0]
+                      ?.name || "",
                 })) || []
               }
               columns={[

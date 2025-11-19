@@ -38,42 +38,44 @@ export default function Customer() {
     }, [customer])
 
     return (
-        <DashboardLayout>
-            {/* البطاقات الإحصائية */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatsCard
-                    title="ديون على الزبائن"
-                    value={-customersDebt || 0}
-                    icon={HandCoins}
-                />
-            </div>
-            <DataTable
-                title='الزبائن'
-                titleButton={
-                    <AddCustomerForm
-                        isOpen={addIsOpen}
-                        setIsOpen={setAddIsOpen}
-                        className='w-full mb-2'
-                    />
-                }
-                columns={supplierColumns}
-                data={customer ?
-                    Object.values(customer).map(supplier => {
-                        if (typeof supplier === 'object') {
-                            return {
-                                ...supplier,
-                                purchasesCount: (supplier as any).purchases?.length ?? 0
-                            };
-                        }
-                        return supplier;
-                    })
-                : []}
-                onRowClick={(row) => {
-                        navigate('/customerDetails', {
-                        state: {id: row.id}
-                    })
-                }}
+      <DashboardLayout>
+        {/* البطاقات الإحصائية */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            title="ديون على الزبائن"
+            value={-customersDebt.toFixed(2) || 0}
+            icon={HandCoins}
+          />
+        </div>
+        <DataTable
+          title="الزبائن"
+          titleButton={
+            <AddCustomerForm
+              isOpen={addIsOpen}
+              setIsOpen={setAddIsOpen}
+              className="w-full mb-2"
             />
-        </DashboardLayout>
-    )
+          }
+          columns={supplierColumns}
+          data={
+            customer
+              ? Object.values(customer).map((supplier) => {
+                  if (typeof supplier === "object") {
+                    return {
+                      ...supplier,
+                      purchasesCount: (supplier as any).purchases?.length ?? 0,
+                    };
+                  }
+                  return supplier;
+                })
+              : []
+          }
+          onRowClick={(row) => {
+            navigate("/customerDetails", {
+              state: { id: row.id },
+            });
+          }}
+        />
+      </DashboardLayout>
+    );
 }

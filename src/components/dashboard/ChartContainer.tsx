@@ -174,52 +174,37 @@ export function ChartContainer({
         }));
 
         return (
-        <div style={{ width: "100%", textAlign: "center" }}>
-          <ResponsiveContainer width="100%" height={340}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                outerRadius={120}
-                innerRadius={50}
-                cornerRadius={8}
-                paddingAngle={4}
-                dataKey="value"
-                label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-                  const RADIAN = Math.PI / 180;
-                  const radius = 2.5 * innerRadius + (outerRadius - innerRadius) / 2;
-                  const x = cx + radius * Math.cos(-midAngle * RADIAN) ;
-                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                  return (
-                    <text
-                      x={x}
-                      y={y}
-                      fill="#000"
-                      textAnchor={x > cx ? "start" : "end"}
-                      dominantBaseline="central"
-                      fontSize={14}
-                      fontWeight="bold"
-                    >
-                      {`${pieData[index].name} ${(percent * 100).toFixed(0)}%`}
-                    </text>
-                  );
-                }}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
+          <div style={{ width: "100%", textAlign: "center" }}>
+            <ResponsiveContainer width="100%" height={340}>
+              <PieChart>
+                <Pie
+                  label
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
+                  innerRadius={50}
+                  cornerRadius={8}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                  ))}
+                </Pie>
 
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-              
-          {/* هنا تضيف النص أسفل الرسم */}
-          <p className="text-foreground/80" style={{ marginTop: "5px", fontWeight: "bold", fontSize: "22px" }}>
-            {desc}
-          </p>
-        </div>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* هنا تضيف النص أسفل الرسم */}
+            <p
+              className="text-foreground/80"
+              style={{ marginTop: "5px", fontWeight: "bold", fontSize: "22px" }}
+            >
+              {desc}
+            </p>
+          </div>
         );
       
         case 'stackBar': {
