@@ -91,7 +91,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
               className="flex justify-between items-center p-1 hover:bg-gray-100 cursor-pointer"
               onClick={() => addProduct(p)}
             >
-              <span>{p.name} ({p.code}) - ${p.sellPrice}</span>
+              <span>{p.name} ({p.code}) - ${p.sellPrice} / {p.warehouse}</span>
               <span>المخزون: {p.quantity}</span>
             </div>
           ))}
