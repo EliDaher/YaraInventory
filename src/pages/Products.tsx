@@ -1,14 +1,32 @@
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import AddProductForm from "@/components/Products/AddProductForm";
+import TransfareForm from "@/components/Products/TransfareForm";
 import { Button } from "@/components/ui/button";
 import getAllProducts from "@/services/products";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+export interface ProductTableRow {
+  id: string;
+  code: string;
+  name: string;
+  quantity: number;
+  warehouse: string;
+  sellPrice: number;
+  category: string;
+  unit: string;
+}  
+
 export default function Products() {
   const navigate = useNavigate();
+
+  // فتح فورم النقل
+  const [openTransfare, setOpenTransfare] = useState(false);
+
+  //المنتج المراد نقله
+  const [productRow, setProductRow] = useState({})
 
   // لفتح الفورم
   const [openForm, setOpenForm] = useState(false);
@@ -25,6 +43,7 @@ export default function Products() {
   });
 
   const ProductsColumns = [
+    { key: "id", label: "المعرف", sortable: true, hidden: true },
     { key: "code", label: "الرمز", sortable: true },
     { key: "name", label: "الاسم", sortable: true },
     { key: "quantity", label: "الكمية", sortable: true },
@@ -57,6 +76,13 @@ export default function Products() {
           isOpen={openForm}
           setIsOpen={setOpenForm}
           row={editRow}
+        />
+
+        {/* نموزج النقل */}
+        <TransfareForm
+          isOpen={openTransfare}
+          setIsOpen={setOpenTransfare}
+          row={productRow as ProductTableRow}
         />
 
         <DataTable
@@ -110,6 +136,18 @@ export default function Products() {
                 }}
               >
                 التفاصيل
+              </Button>
+
+              {/* زر تغيير المستودع */}
+              <Button
+                variant="secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProductRow(row);
+                  setOpenTransfare(true);
+                }}
+              >
+                نقل
               </Button>
             </div>
           )}

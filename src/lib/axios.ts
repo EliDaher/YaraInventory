@@ -3,7 +3,7 @@ import axios from "axios";
 // Create axios instance with default config
 export const apiClient = axios.create({
   baseURL:
-    import.meta.env.VITE_API_BASE_URL || "https://yaraserver.onrender.com",
+  import.meta.env.VITE_API_BASE_URL || "https://yaraserver.onrender.com",
   // import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
   timeout: 10000,
   headers: {

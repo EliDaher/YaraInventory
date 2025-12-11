@@ -285,7 +285,6 @@ export default function AddProductForm({
 
           {!(isDebt == "debt") && (
             <>
-              {" "}
               <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger className="w-full mt-6">
                   <SelectValue placeholder="العملة المدفوع بها" />

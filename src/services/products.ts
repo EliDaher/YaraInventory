@@ -1,17 +1,22 @@
 import apiClient from "@/lib/axios";
 
 export default async function getAllProducts() {
-
-    try {
-      const response = await apiClient.get("/api/products");
-      console.log(response)
-      return response.data
-      
-    } catch (err) {
-      console.error("خطأ :", err);
-      throw new Error("خطأ أثناء جلب المنتجات");
-    }
-
+  try {
+    const response = await apiClient.get("/api/products");
+    return response.data;
+  } catch (err) {
+    console.error("خطأ :", err);
+    throw new Error("خطأ أثناء جلب المنتجات");
+  }
+}
+export async function getAllWarehouses() {
+  try {
+    const response = await apiClient.get("/api/products/warehouses");
+    return response.data.warehouses;
+  } catch (err) {
+    console.error("خطأ :", err);
+    throw new Error("خطأ أثناء جلب المنتجات");
+  }
 }
 export async function addProduct({
   productName,
@@ -21,10 +26,10 @@ export async function addProduct({
   payPrice,
   sellPrice,
   unit,
-  quantity
+  quantity,
 }) {
   try {
-    const response = await apiClient.post("/api/products",{
+    const response = await apiClient.post("/api/products", {
       name: productName,
       code,
       category,
@@ -32,10 +37,9 @@ export async function addProduct({
       payPrice,
       sellPrice,
       unit,
-      quantity
+      quantity,
     });
-    return response.data
-    
+    return response.data;
   } catch (err) {
     console.error("خطأ في تسجيل الدخول:", err);
     throw new Error("خطأ أثناء إضافة منتج جديد");

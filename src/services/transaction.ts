@@ -266,18 +266,37 @@ export async function handleSupplierReturn(newReturn: {
         reason: newReturn.reason,
       },
     });
-    console.log("Response:", {
-        productCode: newReturn.productCode,
-        supplierId: newReturn.supplierId,
-        warehouse: newReturn.warehouse,
-        qty: newReturn.qty,
-        returnValue: newReturn.returnValue,
-        referenceId: newReturn.productId,
-        productId: newReturn.productId,
-        returnType: newReturn.returnType,
-        partValue: newReturn.partValue,
-        reason: newReturn.reason,
-      });
+    return response.data;
+  } catch (err) {
+    console.error("خطأ :", err);
+
+    if (err.response && err.response.data?.message) {
+      throw new Error(err.response.data.message);
+    }
+
+    throw new Error("فشل الاتصال بالسيرفر");
+  }
+}
+
+export async function handleWarehouseTransfare(transferData: {
+  productId: string;
+  oldWarehouse: string;
+  newWarehouse: string;
+  exchangeRate: number;
+  amount_base: number;
+  amount: number;
+  currency: string;
+  quantity: number;
+  note: string;
+  newSellPrice?: number;
+}) {
+  try {
+    const response = await apiClient.post(
+      "/api/transactions/warehouseTransfer",
+      {
+        transferData,
+      },
+    );
     return response.data;
   } catch (err) {
     console.error("خطأ :", err);
