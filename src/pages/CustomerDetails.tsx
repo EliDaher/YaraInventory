@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getCustomerById } from "@/services/customer";
+import { Payment } from "@/services/payments";
 import { handleCustomerReturn, payCustomerDebt } from "@/services/transaction";
+import { parseDate } from "@/utils/parseDate";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import Skeleton from "@mui/material/Skeleton";
@@ -32,7 +34,7 @@ export default function CustomerDetails() {
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
   const queryClient = useQueryClient();
-  const [isOpenReturn, setIsOpenReturn] = useState(false);
+  const [openReturnId, setOpenReturnId] = useState(null);
   const [returnAmounts, setReturnAmounts] = useState<{
     [productId: string]: number;
   }>({});
@@ -41,8 +43,6 @@ export default function CustomerDetails() {
   const [reason, setReason] = useState("");
   const [currency, setCurrency] = useState("");
   const [exchangeRate, setExchangeRate] = useState(1);
-  const [showTip, setShowTip] = useState(false);
-
 
   const payCustomerDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => payCustomerDebt(dataToSend as any),
@@ -335,11 +335,13 @@ export default function CustomerDetails() {
               لا توجد معاملات حالياً.
             </p>
           ) : (
-            <CardContent className="space-y-4 md:space-y-0 grid md:grid-cols-2 gap-4">
+            <CardContent className="space-y-4 md:space-y-0 grid md:grid-cols-1 gap-4">
               <DataTable
                 title="الدفعات"
                 columns={paymentsColumns}
-                data={data?.data.payments}
+                data={[...(data?.data.payments ?? [])].sort(
+                  (a, b) => parseDate(b.date) - parseDate(a.date),
+                )}
               />
               <DataTable
                 title="عمليات الشراء"
@@ -351,7 +353,9 @@ export default function CustomerDetails() {
                         productsString: purchase.products
                           .map((p) => p.name)
                           .join(", "),
-                      }))
+                      })).sort(
+                  (a, b) => parseDate(b.date) - parseDate(a.date),
+                )
                     : []
                 }
                 renderRowActions={(row) => (
@@ -366,10 +370,15 @@ export default function CustomerDetails() {
                     </Button>
                     <PopupForm
                       title={`إرجاع منتجات الفاتورة`}
-                      isOpen={isOpenReturn}
-                      setIsOpen={setIsOpenReturn}
+                      isOpen={openReturnId === row.id}
+                      setIsOpen={() => setOpenReturnId(null)}
                       trigger={
-                        <Button onClick={() => setIsOpenReturn(true)}>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenReturnId(row.id);
+                          }}
+                        >
                           إرجاع
                         </Button>
                       }
@@ -393,51 +402,54 @@ export default function CustomerDetails() {
                               reason: reason,
                             }));
 
-                          productsToReturn.forEach((prod) =>
-                            returnMutation.mutate(prod),
-                          );
+                          productsToReturn.forEach((prod) => {
+                            console.log(prod);
+                            returnMutation.mutate(prod);
+                          });
                           alert("تم تسجيل الإرجاع بنجاح!");
-                          setIsOpenReturn(false);
+                          setOpenReturnId(null);
                           setReturnAmounts({});
                         }}
                       >
-                        {row.products.map((product) => (
-                          <div
-                            key={product.id}
-                            className="border p-2 rounded-md"
-                          >
-                            <p className="font-semibold">{product.name}</p>
-                            <p>الكمية الأصلية: {product.qty}</p>
-                            <p>سعر الوحدة: {product.sellPrice}</p>
-                            <FormInput
-                              id={`return-${product.id}`}
-                              label="كمية الإرجاع"
-                              type="number"
-                              min={0}
-                              max={product.qty}
-                              value={(
-                                returnAmounts[product.id] || 0
-                              ).toString()}
-                              onChange={(e) => {
-                                let qty = Number(e.target.value);
+                        <div className="max-h-96 overflow-y-auto mt-4 border-2 rounded-md ">
+                          {row.products.map((product) => (
+                            <div
+                              key={product.id}
+                              className="border p-2 rounded-md"
+                            >
+                              <p className="font-semibold">{product.name}</p>
+                              <p>الكمية الأصلية: {product.qty}</p>
+                              <p>سعر الوحدة: {product.sellPrice}</p>
+                              <FormInput
+                                id={`return-${product.id}`}
+                                label="كمية الإرجاع"
+                                type="number"
+                                min={0}
+                                max={product.qty}
+                                value={(
+                                  returnAmounts[product.id] || 0
+                                ).toString()}
+                                onChange={(e) => {
+                                  let qty = Number(e.target.value);
 
-                                // التأكد من عدم تجاوز الحد الأعلى والأدنى
-                                if (qty > product.qty) qty = product.qty;
-                                if (qty < 0) qty = 0;
+                                  // التأكد من عدم تجاوز الحد الأعلى والأدنى
+                                  if (qty > product.qty) qty = product.qty;
+                                  if (qty < 0) qty = 0;
 
-                                setReturnAmounts((prev) => ({
-                                  ...prev,
-                                  [product.id]: qty,
-                                }));
-                              }}
-                            />
-                            <p>
-                              المبلغ:{" "}
-                              {(returnAmounts[product.id] || 0) *
-                                product.sellPrice}
-                            </p>
-                          </div>
-                        ))}
+                                  setReturnAmounts((prev) => ({
+                                    ...prev,
+                                    [product.id]: qty,
+                                  }));
+                                }}
+                              />
+                              <p>
+                                المبلغ:{" "}
+                                {(returnAmounts[product.id] || 0) *
+                                  product.sellPrice}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                         <p className="font-bold">
                           المجموع الكلي:{" "}
                           {row.products.reduce(
@@ -470,9 +482,6 @@ export default function CustomerDetails() {
                     </PopupForm>
                   </div>
                 )}
-                onRowClick={(row) => {
-                  console.log(row);
-                }}
               />
             </CardContent>
           )}
