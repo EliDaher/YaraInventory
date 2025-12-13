@@ -36,7 +36,7 @@ export default function CustomerDetails() {
   const queryClient = useQueryClient();
   const [openReturnId, setOpenReturnId] = useState(null);
   const [returnAmounts, setReturnAmounts] = useState<{
-    [productId: string]: number;
+    [productId: string]: string;
   }>({});
   const [isDebt, setIsDebt] = useState<"cash" | "part" | "debt">("cash");
   const [partValue, setPartValue] = useState(0);
@@ -348,14 +348,19 @@ export default function CustomerDetails() {
                 columns={purchasesColumns}
                 data={
                   data
-                    ? data.data.purchases.map((purchase) => ({
-                        ...purchase,
-                        productsString: purchase.products
-                          .map((p) => p.name)
-                          .join(", "),
-                      })).sort(
-                  (a, b) => parseDate(b.date) - parseDate(a.date),
-                )
+                    ? data.data.purchases
+                        .filter(
+                          (purchase) =>
+                            Array.isArray(purchase.products) &&
+                            purchase.products.length > 0,
+                        )
+                        .map((purchase) => ({
+                          ...purchase,
+                          productsString: purchase.products
+                            .map((p) => p.name)
+                            .join(", "),
+                        }))
+                        .sort((a, b) => parseDate(b.date) - parseDate(a.date))
                     : []
                 }
                 renderRowActions={(row) => (
@@ -388,14 +393,17 @@ export default function CustomerDetails() {
                         onSubmit={(e) => {
                           e.preventDefault();
                           const productsToReturn = row.products
-                            .filter((p) => (returnAmounts[p.id] || 0) > 0)
+                            .filter(
+                              (p) => (Number(returnAmounts[p.id]) || 0) > 0,
+                            )
                             .map((p) => ({
                               productId: p.id,
                               productCode: p.code,
                               customerId: row.customerId,
                               warehouse: p.warehouse,
-                              qty: -returnAmounts[p.id],
-                              returnValue: returnAmounts[p.id] * p.sellPrice,
+                              qty: -Number(returnAmounts[p.id]),
+                              returnValue:
+                                Number(returnAmounts[p.id]) * p.sellPrice,
                               referenceId: row.id,
                               partValue: partValue,
                               returnType: isDebt,
@@ -420,21 +428,18 @@ export default function CustomerDetails() {
                               <p className="font-semibold">{product.name}</p>
                               <p>الكمية الأصلية: {product.qty}</p>
                               <p>سعر الوحدة: {product.sellPrice}</p>
+                              <p>المستودع: {product.warehouse}</p>
                               <FormInput
                                 id={`return-${product.id}`}
                                 label="كمية الإرجاع"
-                                type="number"
-                                min={0}
-                                max={product.qty}
                                 value={(
                                   returnAmounts[product.id] || 0
                                 ).toString()}
                                 onChange={(e) => {
-                                  let qty = Number(e.target.value);
+                                  let qty = e.target.value;
 
                                   // التأكد من عدم تجاوز الحد الأعلى والأدنى
                                   if (qty > product.qty) qty = product.qty;
-                                  if (qty < 0) qty = 0;
 
                                   setReturnAmounts((prev) => ({
                                     ...prev,
@@ -444,7 +449,7 @@ export default function CustomerDetails() {
                               />
                               <p>
                                 المبلغ:{" "}
-                                {(returnAmounts[product.id] || 0) *
+                                {(Number(returnAmounts[product.id]) || 0) *
                                   product.sellPrice}
                               </p>
                             </div>
@@ -454,7 +459,8 @@ export default function CustomerDetails() {
                           المجموع الكلي:{" "}
                           {row.products.reduce(
                             (sum, p) =>
-                              sum + (returnAmounts[p.id] || 0) * p.sellPrice,
+                              sum +
+                              (Number(returnAmounts[p.id]) || 0) * p.sellPrice,
                             0,
                           )}
                         </p>

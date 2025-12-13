@@ -34,6 +34,7 @@ export async function addCustomer({
 export async function getCustomerById({ id }: { id: string }) {
   try {
     const response = await apiClient.post("/api/customers/byId", { id });
+    console.log(response.data);
     return response.data;
   } catch (err) {
     console.error("خطأ في جلب المورد:", err);

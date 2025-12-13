@@ -34,7 +34,7 @@ export default function SupplierDetails() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenTo, setIsOpenTo] = useState(false);
-  const [returnAmount, setReturnAmount] = useState(0);
+  const [returnAmount, setReturnAmount] = useState('');
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [isDebt, setIsDebt] = useState<"cash" | "part" | "debt">("cash");
@@ -96,7 +96,7 @@ export default function SupplierDetails() {
     }) => handleSupplierReturn(dataToSend),
     onSuccess: () => {
       alert("تم الارجاع بنجاح!");
-      setReturnAmount(0);
+      setReturnAmount('');
       setOpenRowId(null);
       queryClient.invalidateQueries({
         queryKey: ["supplier-details"],
@@ -132,9 +132,9 @@ export default function SupplierDetails() {
         productCode: row.code,
         supplierId: supplierId.id,
         warehouse: row.warehouse,
-        qty: -returnAmount,
+        qty: -Number(returnAmount),
         returnType: isDebt,
-        returnValue: returnAmount * row.payPrice,
+        returnValue: Number(returnAmount) * row.payPrice,
         referenceId: row.id,
         productId: row.id,
         partValue: partValue,
@@ -391,9 +391,9 @@ export default function SupplierDetails() {
                           label="الكمية"
                           id="return-quantity"
                           type="number"
-                          value={returnAmount.toString()}
+                          value={returnAmount}
                           onChange={(e) =>
-                            setReturnAmount(Number(e.target.value))
+                            setReturnAmount(e.target.value)
                           }
                         />
                         <p className="text-sm text-gray-500">
@@ -404,7 +404,7 @@ export default function SupplierDetails() {
                       </div>
 
                       <p className="font-semibold">
-                        المبلغ الإجمالي: {row.payPrice * returnAmount}
+                        المبلغ الإجمالي: {row.payPrice * Number(returnAmount)}
                       </p>
 
                       <PaymentTypeSelector
