@@ -239,7 +239,7 @@ export default function Dashboard() {
               pageSizeOptions={[5]}
             />
 
-            <DataTable
+            {/* <DataTable
               title="آخر المبيعات"
               data={
                 lastSells.map((sell: any) => ({
@@ -261,7 +261,7 @@ export default function Dashboard() {
               ]}
               defaultPageSize={5}
               pageSizeOptions={[5]}
-            />
+            /> */}
 
             <DataTable
               title="ابرز العملاء"

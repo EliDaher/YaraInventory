@@ -1,3 +1,4 @@
+import CustomerPaymentForm from "@/components/Customers/CustomerPaymentForm";
 import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -156,89 +157,11 @@ export default function CustomerDetails() {
               })}
 
             <div className="grid grid-cols-2 gap-4">
-              <PopupForm
-                title="اضافة دفعة"
-                trigger={
-                  <Button
-                    onClick={(e) => {
-                      setIsOpen(true);
-                      e.stopPropagation();
-                    }}
-                    variant="accent"
-                    size="sm"
-                    className="w-full"
-                  >
-                    اضافة دفعة من الزبون
-                  </Button>
-                }
+              <CustomerPaymentForm
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
-              >
-                <form
-                  className="space-y-4 mt-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    payCustomerDebtMutation.mutate({
-                      customerId: customerId.id,
-                      amount:
-                        currency == "USD"
-                          ? amount
-                          : Number((amount / exchangeRate).toFixed(1)),
-                      note,
-                      currency: currency,
-                      exchangeRate: exchangeRate,
-                      amount_base: amount,
-                    });
-                  }}
-                >
-                  <FormInput
-                    label="قيمة الدفعة"
-                    id="payment-amount"
-                    type="number"
-                    value={amount.toString()}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                  />
-                  <FormInput
-                    label="ملاحظات"
-                    id="note"
-                    type="text"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                  />
-
-                  {!(isDebt == "debt") && (
-                    <>
-                      {" "}
-                      <Select value={currency} onValueChange={setCurrency}>
-                        <SelectTrigger className="w-full mt-6">
-                          <SelectValue placeholder="العملة المدفوع بها" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["SYP", "USD"].map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormInput
-                        id="exchangeRate"
-                        label="سعر الصرف"
-                        value={currency == "USD" ? 1 : exchangeRate}
-                        onChange={(e) =>
-                          setExchangeRate(Number(e.target.value))
-                        }
-                        disabled={currency === "USD"}
-                      />
-                    </>
-                  )}
-
-                  <Button className="w-full" type="submit">
-                    اضافة دفعة
-                  </Button>
-                </form>
-              </PopupForm>
-
+                customerData={customerId}
+              />
               {/* إضافة دفعة */}
               <PopupForm
                 title="دفع للزبون"

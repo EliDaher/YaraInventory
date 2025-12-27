@@ -185,6 +185,7 @@ export default function TransferForm({
               label="الكمية المراد نقلها"
               value={form.quantity}
               onChange={(e) => handleChange("quantity", Number(e.target.value))}
+              className="rounded-l-none"
             />
             <Button
               type="button"
@@ -201,20 +202,24 @@ export default function TransferForm({
             value={form.sellPrice}
             onChange={(e) => handleChange("sellPrice", Number(e.target.value))}
           />
-          <FormInput
-            disabled={isLoading}
-            id="prodNewWarehouse"
-            label="المستودع المنقول إليه"
-            value={form.warehouse}
-            options={warehouses?.map((name, i) => ({
-              id: name,
-              name,
-            }))}
-            onChange={(value) => {
-              console.log(value);
-              handleChange("warehouse", value as any);
-            }}
-          />
+          {form.warehouse !== "other" ? (
+            <FormInput
+              disabled={isLoading}
+              id="prodNewWarehouse"
+              label="المستودع المنقول إليه"
+              value={form.warehouse}
+              options={warehouses?.map((name, i) => ({
+                id: name,
+                name,
+              }))}
+              onChange={(value) => {
+                console.log(value);
+                handleChange("warehouse", value as any);
+              }}
+            />
+          ) : (
+            <></>
+          )}
           {form.warehouse == "other" ? (
             <FormInput
               id="prodNewWarehouse"
@@ -237,13 +242,14 @@ export default function TransferForm({
                 label="تكلفة النقل"
                 value={form.amount}
                 onChange={(e) => handleChange("amount", e.target.value)}
+                className="rounded-l-none"
               />
             </div>
             <Select
               value={form.currency}
               onValueChange={(value) => handleChange("currency", value)}
             >
-              <SelectTrigger className="mt-6">
+              <SelectTrigger className="mt-6 rounded-r-none">
                 <SelectValue placeholder="العملة المدفوع بها" />
               </SelectTrigger>
               <SelectContent>
@@ -273,12 +279,12 @@ export default function TransferForm({
             />
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="col-span-2"
             disabled={warehouseTransfare.isPending}
           >
-            {warehouseTransfare.isPending ? 'جاري النقل...' : 'تأكيد'}
+            {warehouseTransfare.isPending ? "جاري النقل..." : "تأكيد"}
           </Button>
         </div>
       </form>
