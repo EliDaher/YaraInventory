@@ -137,7 +137,7 @@ export default function WarehousesDetails() {
             <StatsCard
               onClick={() => {}}
               title="صندوق اليوم"
-              value={totalTodaySales || 0}
+              value={totalTodaySales?.toFixed(2) || 0}
               icon={PlusCircle}
               loading={isLoading}
             />
