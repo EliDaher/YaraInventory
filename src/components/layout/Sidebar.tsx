@@ -4,11 +4,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Package,
-  Users,
   ShoppingCart,
   Users2,
   FileText,
-  ArrowUpDown,
+  Warehouse,
+  UserPlus,
   
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,7 @@ const navigationGroups = [
   {
     name: "Suppliers",
     href: "/Suppliers",
-    icon: Users,
+    icon: UserPlus,
     allowed: ["admin"]
   },
   {
@@ -43,6 +43,12 @@ const navigationGroups = [
     name: "Financial Statement",
     href: "/financialStatement",
     icon: FileText,
+    allowed: ["admin"]
+  },
+  {
+    name: "Warehouses",
+    href: "/warehouses",
+    icon: Warehouse,
     allowed: ["admin"]
   },
   // {

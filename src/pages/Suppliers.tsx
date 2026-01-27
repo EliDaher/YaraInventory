@@ -3,11 +3,9 @@ import { StatsCard } from '@/components/dashboard/StatsCard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import SupplierSelect from '@/components/Products/SupplierSelect';
 import { Button } from '@/components/ui/button';
-import FormInput from '@/components/ui/custom/FormInput';
 import PopupForm from '@/components/ui/custom/PopupForm';
 import getAllSupplier from '@/services/supplier';
-import { paySupplierDebt } from '@/services/transaction';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { HandCoins } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,9 +46,11 @@ export default function Suppliers() {
                     title="ديون للموردين"
                     value={suppliersDebt.toFixed(2) || 0}
                     icon={HandCoins}
+                    loading={suppliersLoading}
                 />
             </div>
             <DataTable
+                isLoading={suppliersLoading}
                 title='الموردين'
                 titleButton={
                     <PopupForm

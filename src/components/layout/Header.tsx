@@ -1,6 +1,5 @@
-import { Bell, Search, User } from "lucide-react";
+import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,22 +9,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-interface HeaderProps {
-  onToggleSidebar: () => void;
-}
-
-interface inventoryUser {
+export interface inventoryUser {
   id: string,
   password: string,
   role: string,
   username: string,
 }
 
-export function Header({ onToggleSidebar }: HeaderProps) {
+export function Header() {
   const navigate = useNavigate()
   const [inventoryUser, setInventoryUser] = useState<inventoryUser>()
 

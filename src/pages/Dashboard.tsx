@@ -7,7 +7,6 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CardHeader, Card, CardContent } from "@/components/ui/card";
 import getAllCustomer from "@/services/customer";
 import { getPaymentsByMonth } from "@/services/payments";
-import getAllPurchases from "@/services/purchases";
 import getAllSells from "@/services/sells";
 import getAllSupplier from "@/services/supplier";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -27,7 +26,7 @@ export default function Dashboard() {
     year: string;
   }>({
     month: dayjs().format("M"),
-    year: "2025",
+    year: "2026",
   });
 
   // ✅ Query Keys تشمل الشهر والسنة
@@ -62,16 +61,14 @@ export default function Dashboard() {
     {},
   );
 
-
   const pieChartData = Object.entries(pieData)
     ?.slice(0, 5)
     ?.map(([name, value]) => ({
       name,
       value,
-  }));
+    }));
 
-
-  const grouped =
+  const groupedObject =
     payments?.reduce(
       (acc: Record<string, { income: number; expense: number }>, p) => {
         const day = dayjs(p.date).format("YYYY-MM-DD");
@@ -93,9 +90,27 @@ export default function Dashboard() {
       {},
     ) || {};
 
+  const groupedSorted = Object.entries(groupedObject)
+    .map(([date, values]: any) => ({
+      date,
+      ...values,
+    }))
+    .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf());
+
+  const groupedSortedObject = groupedSorted.reduce(
+    (acc, item) => {
+      acc[item.date] = {
+        income: item.income,
+        expense: item.expense,
+      };
+      return acc;
+    },
+    {} as Record<string, { income: number; expense: number }>,
+  );
+
   // ✅ تحويلها لمصفوفة
   const chartData = Object.entries(
-    grouped as Record<string, { income: number; expense: number }>,
+    groupedSortedObject as Record<string, { income: number; expense: number }>,
   ).map(([day, { income, expense }]) => ({
     day,
     income: Number(income.toFixed(3) || 0),
@@ -135,7 +150,6 @@ export default function Dashboard() {
 
   // ✅ جلب آخر العمليات
   const lastPayments = [...(paymentsWithSupplier || [])].reverse().slice(0, 5);
-  const lastSells = [...(sells || [])].reverse().slice(0, 5);
   const lastCustomers = [...(customer || [])].reverse().slice(0, 5);
 
   return (
@@ -150,6 +164,7 @@ export default function Dashboard() {
               value={totalIncome.toFixed(3) || 0}
               icon={ArrowDown}
               className="rounded-br-none"
+              loading={paymentsLoading}
             />
 
             <AddBalanceForm
@@ -166,6 +181,7 @@ export default function Dashboard() {
               value={totalExpense.toFixed(3) || 0}
               icon={ArrowUp}
               className="rounded-br-none"
+              loading={paymentsLoading}
             />
             <TakeBalanceForm
               isOpen={isOpenPay}
@@ -178,6 +194,7 @@ export default function Dashboard() {
             title="إجمالي ارصدة العملاء"
             value={totalCustomerBalance || 0}
             icon={Users}
+            loading={supplierLoading}
           />
         </div>
         {/* ✅ Chart */}
@@ -237,31 +254,8 @@ export default function Dashboard() {
               columns={paymentsColumns}
               defaultPageSize={5}
               pageSizeOptions={[5]}
+              isLoading={paymentsLoading}
             />
-
-            {/* <DataTable
-              title="آخر المبيعات"
-              data={
-                lastSells.map((sell: any) => ({
-                  ...sell,
-                  products: sell.products?.length ?? 0,
-                  productsName:
-                    sell.products.map((p) => p.name).join(", ") ?? 0,
-                  customerName:
-                    customer?.filter((c) => c.id === sell.customerId)[0]
-                      ?.name || "",
-                })) || []
-              }
-              columns={[
-                { label: "المعرف", key: "id", hidden: true },
-                { label: "الزبون", key: "customerName" },
-                { label: "التاريخ", key: "date" },
-                { label: "المنتجات", key: "productsName" },
-                { label: "عدد المنتجات", key: "products" },
-              ]}
-              defaultPageSize={5}
-              pageSizeOptions={[5]}
-            /> */}
 
             <DataTable
               title="ابرز العملاء"
@@ -277,6 +271,7 @@ export default function Dashboard() {
               ]}
               defaultPageSize={5}
               pageSizeOptions={[5]}
+              isLoading={customerLoading}
             />
           </CardContent>
         </Card>

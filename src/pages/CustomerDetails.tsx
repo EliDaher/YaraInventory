@@ -1,5 +1,4 @@
 import CustomerPaymentForm from "@/components/Customers/CustomerPaymentForm";
-import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
@@ -14,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getCustomerById } from "@/services/customer";
-import { Payment } from "@/services/payments";
 import { handleCustomerReturn, payCustomerDebt } from "@/services/transaction";
 import { parseDate } from "@/utils/parseDate";
 import CardContent from "@mui/material/CardContent";

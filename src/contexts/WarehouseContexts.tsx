@@ -1,7 +1,9 @@
 import { createContext, useContext } from "react";
 import { useWarehouses } from "@/hooks/useWarehouses";
 
-const WarehouseContext = createContext(null);
+type WarehouseContextType = ReturnType<typeof useWarehouses>;
+
+const WarehouseContext = createContext<WarehouseContextType | null>(null);
 
 export function WarehouseProvider({ children }) {
   const warehousesQuery = useWarehouses();

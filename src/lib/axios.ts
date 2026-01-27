@@ -1,40 +1,60 @@
 import axios from "axios";
 
-// Create axios instance with default config
+/**
+ * جلب رابط السيرفر من localStorage أو env
+ */
+const getBaseURL = () => {
+  try {
+    //const storedUser = localStorage.getItem("InventoryUser");
+    //const inventoryUser = storedUser ? JSON.parse(storedUser) : null;
+
+    return (
+      "http://localhost:5000"
+      // inventoryUser?.serverURL ||
+      // import.meta.env.VITE_API_BASE_URL ||
+      // "https://yaraserver.onrender.com"
+    );
+  } catch (error) {
+    console.error("Failed to parse InventoryUser:", error);
+    return (
+      import.meta.env.VITE_API_BASE_URL || "https://yaraserver.onrender.com"
+    );
+  }
+};
+
+// ✅ إنشاء axios instance
 export const apiClient = axios.create({
-  baseURL:
-  import.meta.env.VITE_API_BASE_URL || "https://yaraserver.onrender.com",
-  // import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
-  timeout: 10000,
+  baseURL: getBaseURL(),
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-
+// =========================
 // Request interceptor
+// =========================
 apiClient.interceptors.request.use(
   (config) => {
-    // Add auth token if available
     const token = localStorage.getItem("auth_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // 🔥 تحديث baseURL في كل طلب (لو تغير المستخدم)
+    config.baseURL = getBaseURL();
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
+// =========================
 // Response interceptor
+// =========================
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-   
-
     return Promise.reject(error);
   },
 );

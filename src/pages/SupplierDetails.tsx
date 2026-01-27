@@ -1,4 +1,3 @@
-import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
@@ -17,7 +16,6 @@ import { getSupplierById } from "@/services/supplier";
 import {
   handleSupplierReturn,
   paySupplierDebt,
-  returnData,
 } from "@/services/transaction";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";

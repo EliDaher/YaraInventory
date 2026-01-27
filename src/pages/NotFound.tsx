@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const NotFound = () => {
-  const inventoryUser = JSON.parse(localStorage.getItem('InventoryUser'))
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20 p-4">
       <Card className="w-full max-w-md">

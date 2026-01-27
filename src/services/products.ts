@@ -9,15 +9,12 @@ export default async function getAllProducts() {
     throw new Error("خطأ أثناء جلب المنتجات");
   }
 }
-export async function getAllWarehouses() {
-  try {
-    const response = await apiClient.get("/api/products/warehouses");
-    return response.data.warehouses;
-  } catch (err) {
-    console.error("خطأ :", err);
-    throw new Error("خطأ أثناء جلب المنتجات");
-  }
-}
+
+
+
+
+
+
 export async function addProduct({
   productName,
   code,

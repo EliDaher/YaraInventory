@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from "react";
+import { ReactNode } from "react";
 import { X } from "lucide-react";
 
 type PopupFormProps = {
@@ -29,12 +29,12 @@ export default function PopupForm({ title = "نموذج", trigger, children, isO
 
           {/* محتوى البوب أب */}
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fade-in">
+            <div className="bg-background w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fade-in">
               <div className="flex flex-row-reverse justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{title}</h2>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-red-500 transition"
+                  className="text-foreground hover:text-red-500 transition"
                   aria-label="إغلاق"
                 >
                   <X size={24} />

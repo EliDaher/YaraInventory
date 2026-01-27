@@ -1,12 +1,17 @@
-import { DataTable } from "@/components/dashboard/DataTable";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import AddProductForm from "@/components/Products/AddProductForm";
+import ProductsDataTable from "@/components/Products/ProductsDataTable";
 import TransfareForm from "@/components/Products/TransfareForm";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import FilterSelection from "@/components/ui/custom/FilterSelection";
+import FormInput from "@/components/ui/custom/FormInput";
+import Loading from "@/components/ui/custom/Loading";
 import getAllProducts from "@/services/products";
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Box } from "lucide-react";
+import { useState, useMemo } from "react";
 
 export interface ProductTableRow {
   id: string;
@@ -17,141 +22,184 @@ export interface ProductTableRow {
   sellPrice: number;
   category: string;
   unit: string;
-}  
+}
 
 export default function Products() {
-  const navigate = useNavigate();
 
-  // فتح فورم النقل
   const [openTransfare, setOpenTransfare] = useState(false);
+  const [productRow, setProductRow] = useState({});
 
-  //المنتج المراد نقله
-  const [productRow, setProductRow] = useState({})
-
-  // لفتح الفورم
   const [openForm, setOpenForm] = useState(false);
-
-  // لتحديد الصف الذي سيتم تعديل بياناته في الفورم
   const [editRow, setEditRow] = useState<any | null>(null);
 
-  // الصفوف المحددّة (تحديد متعدد)
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [warehouseFilter, setWarehouseFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState("all");
+  const [onlyLowStock, setOnlyLowStock] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
   const { data: products, isLoading: productsLoading } = useQuery({
     queryKey: ["products-table"],
     queryFn: getAllProducts,
   });
 
-  const ProductsColumns = [
-    { key: "id", label: "المعرف", sortable: true, hidden: true },
-    { key: "code", label: "الرمز", sortable: true },
-    { key: "name", label: "الاسم", sortable: true },
-    { key: "quantity", label: "الكمية", sortable: true },
-    { key: "warehouse", label: "المخزن", sortable: true },
-    { key: "sellPrice", label: "سعر المبيع", sortable: true },
-    { key: "category", label: "الصنف", sortable: true },
-    { key: "unit", label: "الواحدة", sortable: true },
-  ];
 
-  const isRowSelected = (row: any) => {
-    return selectedRows.some((r) => JSON.stringify(r) === JSON.stringify(row));
-  };
+  // =======================
+  // تصفية البيانات
+  // =======================
+  const filteredData = useMemo(() => {
+    if (!products) return [];
 
-  const toggleRowSelection = (row: any) => {
-    setSelectedRows((prev) => {
-      const isSelected = isRowSelected(row);
-      if (isSelected) {
-        return prev.filter((r) => JSON.stringify(r) !== JSON.stringify(row));
-      } else {
-        return [...prev, row];
-      }
-    });
-  };
+    let rows: ProductTableRow[] = Object.values(products).flatMap((w: any) =>
+      Object.values(w),
+    );
+
+    if (warehouseFilter !== "all") {
+      rows = rows.filter((p) => p.warehouse === warehouseFilter);
+    }
+
+    if (categoryFilter !== "all") {
+      rows = rows.filter((p) => p.category === categoryFilter);
+    }
+
+    if (stockFilter !== "all") {
+      rows = rows.filter((p) =>
+        stockFilter === "out"
+          ? p.quantity === 0
+          : p.quantity > 0 && p.quantity < 5,
+      );
+    }
+
+    if (onlyLowStock) {
+      rows = rows.filter((p) => p.quantity <= 5);
+    }
+
+    rows = rows.filter(
+      (p) => p.sellPrice >= priceRange[0] && p.sellPrice <= priceRange[1],
+    );
+
+    return rows;
+  }, [
+    products,
+    warehouseFilter,
+    categoryFilter,
+    stockFilter,
+    onlyLowStock,
+    priceRange,
+  ]);
+
+  const totalProductsBalance = filteredData?.reduce(
+    (sum, d: ProductTableRow & { payPrice: number }) => sum + ((d.payPrice || 1) * (d.quantity || 1)),
+    0,
+  );
+
 
   return (
     <DashboardLayout>
-      <div>
-        {/* ❗ نموذج واحد فقط في الصفحة */}
+      <div className="space-y-4">
+        <div dir="rtl" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            onClick={() => {}}
+            title="اجماري رصيد المنتجات"
+            value={totalProductsBalance.toFixed(2) || 0}
+            icon={Box}
+            onlyAdmin={true}
+          />
+        </div>
         <AddProductForm
           isOpen={openForm}
           setIsOpen={setOpenForm}
           row={editRow}
         />
-
-        {/* نموزج النقل */}
         <TransfareForm
           isOpen={openTransfare}
           setIsOpen={setOpenTransfare}
           row={productRow as ProductTableRow}
         />
 
-        <DataTable
-          title="قائمة المنتجات"
-          titleButton={
+        {/* ======= فلاتر احترافية ======= */}
+        <Card>
+          <CardHeader>
+            <CardTitle>الفلاتر</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <FilterSelection
+              DataToFilter={products}
+              selectedFilter={categoryFilter}
+              setSelectedFilter={setCategoryFilter}
+              FilterBy="category"
+              Placeholder="اختر الصنف"
+            />
+
+            <FilterSelection
+              DataToFilter={products}
+              selectedFilter={warehouseFilter}
+              setSelectedFilter={setWarehouseFilter}
+              FilterBy="warehouse"
+              Placeholder="اختر المستودع"
+            />
+
+            {/* <label className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={onlyLowStock}
+                onChange={(e) => setOnlyLowStock(e.target.checked)}
+              />
+              المخزون الحرج فقط
+            </label> */}
+
+            <div className="flex w-full items-center gap-2">
+              <span>السعر:</span>
+              <FormInput
+                label=""
+                type="number"
+                className="border rounded px-2 py-1"
+                value={priceRange[0]}
+                onChange={(e) =>
+                  setPriceRange([Number(e.target.value), priceRange[1]])
+                }
+                placeholder="min"
+              />
+              -
+              <FormInput
+                label=""
+                type="number"
+                className="border rounded px-2 py-1"
+                value={priceRange[1]}
+                onChange={(e) =>
+                  setPriceRange([priceRange[0], Number(e.target.value)])
+                }
+                placeholder="max"
+              />
+            </div>
+
             <Button
+              variant="outline"
               onClick={() => {
-                setEditRow(null); // ← فتح النموذج بدون بيانات
-                setOpenForm(true);
+                setWarehouseFilter("all");
+                setCategoryFilter("all");
+                setStockFilter("all");
+                setOnlyLowStock(false);
+                setPriceRange([0, 100000]);
               }}
             >
-              إضافة منتج
+              إعادة تعيين الفلاتر
             </Button>
-          }
-          columns={ProductsColumns}
-          data={
-            products
-              ? Object.values(products || {}).flatMap((warehouse: any) =>
-                  Object.values(warehouse),
-                )
-              : []
-          }
-          onRowClick={(row) => toggleRowSelection(row)}
-          getRowClassName={(row) =>
-            selectedRows?.some((r) => r === row)
-              ? "bg-green-50 hover:bg-green-100"
-              : ""
-          }
-          renderRowActions={(row) => (
-            <div className="flex gap-1">
-              {/* زر شراء المنتج */}
-              <Button
-                variant="default"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditRow(row); // تعبئة الحقول بهذه البيانات
-                  setOpenForm(true); // فتح الفورم
-                }}
-              >
-                شراء
-              </Button>
+          </CardContent>
+        </Card>
 
-              {/* زر التفاصيل */}
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/productDetails", {
-                    state: row,
-                  });
-                }}
-              >
-                التفاصيل
-              </Button>
-
-              {/* زر تغيير المستودع */}
-              <Button
-                variant="secondary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setProductRow(row);
-                  setOpenTransfare(true);
-                }}
-              >
-                نقل
-              </Button>
-            </div>
-          )}
-        />
+        {/* ======= الجدول ======= */}
+        {productsLoading ? (
+          <Loading />
+        ) : (
+          <ProductsDataTable
+            productsData={filteredData}
+            setEditRow={setEditRow}
+            setOpenForm={setOpenForm}
+            setOpenTransfare={setOpenTransfare}
+            setProductRow={setProductRow}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

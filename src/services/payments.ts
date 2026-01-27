@@ -28,7 +28,6 @@ export default async function getAllPayments() {
 export async function getPaymentsByMonth({month, year}: {month: string, year: string}) {
   try {
     const response = await apiClient.get(`/api/payments/month?month=${month}&year=${year}`);
-    console.log(response)
     return response.data   
   } catch (err) {
     console.error("خطأ :", err);

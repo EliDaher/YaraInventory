@@ -1,325 +1,273 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import PopupForm from "../ui/custom/PopupForm";
 import { Button } from "../ui/button";
 import FormInput from "../ui/custom/FormInput";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { payNewProduct, Product, purchase } from "@/services/transaction";
-import { Select } from "@radix-ui/react-select";
+import { payNewProduct } from "@/services/transaction";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { addProductSchema } from "@/schemas/addProduct.schema";
+import { z } from "zod";
+import SupplierSelect from "./SupplierSelect";
 import {
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import SupplierSelect from "./SupplierSelect";
+import WarehouseSelect from "../Warehouses/WarehouseSelect";
+
+type FormValues = z.infer<typeof addProductSchema>;
 
 export default function AddProductForm({
   isOpen,
   setIsOpen,
-  row,
+  row, // ✅ موجودة
 }: {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   row?: any;
 }) {
-  const [openSupplier, setOpenSupplier] = useState(false);
-  const [name, setName] = useState("");
-  const [code, setCode] = useState("");
-  const [category, setCategory] = useState("");
-  const [warehouse, setWarehouse] = useState("");
-  const [payPrice, setPayPrice] = useState("0");
-  const [sellPrice, setSellPrice] = useState("0");
-  const [quantity, setQuantity] = useState("0");
-  const [unit, setUnit] = useState("");
-  const [isDebt, setIsDebt] = useState("cash");
-  const [partValue, setPartValue] = useState("0");
-  const [supplierId, setSupplierId] = useState("");
-  const [currency, setCurrency] = useState("");
-  const [exchangeRate, setExchangeRate] = useState(1);
   const queryClient = useQueryClient();
+  const [openSupplier, setOpenSupplier] = React.useState(false);
 
-  useEffect(() => {
-    if (row) {
-      setName(row.name);
-      setCode(row.code);
-      setCategory(row.category);
-      setWarehouse(row.warehouse);
-      setPayPrice(row.payPrice);
-      setSellPrice(row.sellPrice);
-      setUnit(row.unit);
-    }
-  }, [row]);
-
-  const payProductMutation = useMutation({
-    mutationFn: (dataToSend: { newProduct: Product; newPurchase: purchase }) =>
-      payNewProduct(
-        dataToSend as { newProduct: Product; newPurchase: purchase },
-      ),
-    onSuccess: () => {
-      alert("تم إضافة المنتج بنجاح!");
-
-      setName("");
-      setCode("");
-      setCategory("");
-      setWarehouse("");
-      setPayPrice("0");
-      setSellPrice("0");
-      setUnit("");
-      setQuantity("0");
-      setIsDebt("cash");
-      setSupplierId("");
-      setIsOpen(false);
-
-      queryClient.invalidateQueries({
-        queryKey: ["products-table"],
-      });
-    },
-    onError: (error) => {
-      console.error(error);
-      alert("حدث خطأ أثناء إضافة المنتج");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(addProductSchema),
+    defaultValues: {
+      isDebt: "cash",
+      currency: "USD",
+      exchangeRate: 1,
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const isDebt = watch("isDebt");
+  const currency = watch("currency");
 
-    if (
-      !name ||
-      !code ||
-      !category ||
-      !warehouse ||
-      !payPrice ||
-      !sellPrice ||
-      !unit ||
-      !quantity
-    ) {
-      alert("الرجاء التأكد من البيانات");
-      return;
-    }
+  // ✅ تعبئة الفورم من row
+  useEffect(() => {
+    if (!row) return;
 
-    if (!supplierId) {
-      alert("الرجاء اختيار المورد");
-      return;
-    }
+    reset({
+      name: row.name,
+      code: row.code,
+      category: row.category,
+      warehouse: row.warehouse,
+      payPrice: row.payPrice,
+      sellPrice: row.sellPrice,
+      unit: row.unit,
+      quantity: row.quantity ?? 1,
+      supplierId: row.supplierId ?? "",
+      isDebt: "cash",
+      currency: "USD",
+      exchangeRate: 1,
+    });
+  }, [row, reset]);
 
-    if (isDebt !== "debt" && !currency) {
+  // ✅ Mutation
+  const mutation = useMutation({
+    mutationFn: (data: { newProduct: any; newPurchase: any }) =>
+      payNewProduct(data),
+    onSuccess: () => {
+      reset();
+      setIsOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["products-table"] });
+    },
+  });
+
+  // ✅ نفس منطقك التجاري السابق بالكامل
+  const onSubmit = (values: FormValues) => {
+    const total = values.quantity * values.payPrice;
+
+
+    if (values.isDebt !== "debt" && !values.currency) {
       alert("الرجاء اختيار العملة");
       return;
     }
 
-    if (isDebt === "part" && Number(partValue) <= 0) {
-      alert("الرجاء ادخال قيمة الدفعة الجزئية");
-      return;
-    }
-
-    if (isDebt !== "debt" && currency === "SYP" && exchangeRate <= 0) {
-      alert("الرجاء ادخال سعر صرف صحيح");
+    if (values.isDebt === "part" && (values.partValue ?? 0) <= 0) {
+      alert("الرجاء إدخال قيمة الدفعة الجزئية");
       return;
     }
 
     if (
-      isDebt === "part" &&
-      Number(partValue) >= Number(quantity) * Number(payPrice)
+      values.isDebt !== "debt" &&
+      values.currency === "SYP" &&
+      values.exchangeRate <= 0
     ) {
-      alert(
-        "قيمة الدفعة الجزئية لا يمكن ان تكون اكبر من او تساوي المبلغ الكلي",
-      );
+      alert("الرجاء إدخال سعر صرف صحيح");
       return;
     }
 
-    payProductMutation.mutate({
+    if (values.isDebt === "part" && (values.partValue ?? 0) >= total) {
+      alert("قيمة الدفعة الجزئية لا يمكن أن تكون أكبر أو تساوي المبلغ الكلي");
+      return;
+    }
+
+    const remainingDebt =
+      values.isDebt === "debt"
+        ? total
+        : values.isDebt === "cash"
+          ? 0
+          : total -
+            (values.currency === "USD"
+              ? values.partValue!
+              : Number((values.partValue! / values.exchangeRate).toFixed(1)));
+
+    mutation.mutate({
       newProduct: {
-        name,
-        code,
-        category,
-        warehouse,
-        payPrice: Number(payPrice),
-        sellPrice: Number(sellPrice),
-        unit,
-        quantity: Number(quantity),
+        name: values.name,
+        code: values.code,
+        category: values.category,
+        warehouse: values.warehouse,
+        payPrice: values.payPrice,
+        sellPrice: values.sellPrice,
+        unit: values.unit,
+        quantity: values.quantity,
       },
       newPurchase: {
-        supplierId: supplierId,
-        name,
-        code,
-        warehouse,
-        quantity: Number(quantity),
-        payPrice: Number(payPrice),
-        currency: currency,
-        exchangeRate: exchangeRate,
-        amount_base: Number(payPrice) * exchangeRate,
-        totalPrice: Number(quantity) * Number(payPrice),
+        supplierId: values.supplierId,
+        name: values.name,
+        code: values.code,
+        warehouse: values.warehouse,
+        quantity: values.quantity,
+        payPrice: values.payPrice,
+        currency: values.currency!,
+        exchangeRate: values.exchangeRate,
+        amount_base: values.payPrice * values.exchangeRate,
+        totalPrice: total,
         paymentStatus: "pending",
-        remainingDebt:
-          isDebt == "debt"
-            ? Number(quantity) * Number(payPrice)
-            : isDebt == "cash"
-              ? 0
-              : Number(quantity) * Number(payPrice) -
-                (currency == "USD"
-                  ? Number(payPrice)
-                  : Number((Number(partValue) / exchangeRate).toFixed(1))),
+        remainingDebt,
       },
-    } as {
-      newProduct: Product;
-      newPurchase: purchase;
     });
-
-    setName("");
-    setCode("");
-    setCategory("");
-    setWarehouse("");
-    setPayPrice("0");
-    setSellPrice("0");
-    setUnit("");
-    setQuantity("0");
-    setIsDebt("cash");
-    setSupplierId("");
-    setCurrency("USD");
-    setExchangeRate(1);
-
+    queryClient.invalidateQueries({ queryKey: ["products-table"] });
   };
 
   return (
-    <div>
-      <PopupForm
-        title="شراء منتجات"
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        trigger={<></>}
+    <PopupForm
+      trigger={<></>}
+      title={row ? "تعديل المنتج" : "شراء منتجات"}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+    >
+      <form
+        dir="rtl"
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[75vh] overflow-y-auto overflow-x-hidden"
       >
-        <form
-          dir="rtl"
-          onSubmit={handleSubmit}
-          className="grid grid-cols-2 gap-3"
-        >
-          <FormInput
-            id="productName"
-            label="اسم المنتج"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <FormInput
-            id="RMZProduct"
-            label="رمز المنتج"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
-          <FormInput
-            id="productCategory"
-            label="الصنف"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
-          <FormInput
-            id="invId"
-            label="المستودع"
-            value={warehouse}
-            onChange={(e) => setWarehouse(e.target.value)}
-          />
-          <FormInput
-            id="payPrice"
-            label="سعر الشراء"
-            value={payPrice}
-            onChange={(e) => setPayPrice(e.target.value)}
-          />
-          <FormInput
-            id="sellPrice"
-            label="سعر المبيع"
-            value={sellPrice}
-            onChange={(e) => setSellPrice(e.target.value)}
-          />
-          <FormInput
-            id="quantity"
-            label="الكمية"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-          />
-          <FormInput
-            id="unit"
-            label="الواحدة"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-          />
+        <FormInput
+          label="اسم المنتج"
+          {...register("name")}
+          error={errors.name?.message}
+        />
+        <FormInput
+          label="رمز المنتج"
+          {...register("code")}
+          error={errors.code?.message}
+        />
+        <FormInput label="الصنف" {...register("category")} />
 
-          <div className="col-span-2 grid grid-cols-3 gap-2">
-            <Button
-              onClick={() => {
-                setIsDebt("cash");
-              }}
-              className="col-span-1"
-              variant={isDebt === "cash" ? "default" : "outline"}
-              type="button"
-            >
-              نقدا
-            </Button>
-            <Button
-              onClick={() => {
-                setIsDebt("part");
-              }}
-              className="col-span-1"
-              variant={isDebt === "part" ? "default" : "outline"}
-              type="button"
-            >
-              جزئي
-            </Button>
-            <Button
-              onClick={() => {
-                setIsDebt("debt");
-              }}
-              className="col-span-1"
-              variant={isDebt === "debt" ? "default" : "outline"}
-              type="button"
-            >
-              دين
-            </Button>
-          </div>
-          {isDebt === "part" && (
-            <FormInput
-              id="partPayment"
-              label="قيمة الدفعة"
-              value={partValue}
-              onChange={(e) => setPartValue(e.target.value)}
+        <Controller
+          control={control}
+          name="warehouse"
+          render={({ field }) => (
+            <WarehouseSelect
+              label="المستودع"
+              value={field.value}
+              onChange={field.onChange}
             />
           )}
+        />
 
-          {!(isDebt == "debt") && (
-            <>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger className="w-full mt-6">
-                  <SelectValue placeholder="العملة المدفوع بها" />
-                </SelectTrigger>
-                <SelectContent>
-                  {["SYP", "USD"].map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormInput
-                id="exchangeRate"
-                label="سعر الصرف"
-                value={currency == "USD" ? 1 : exchangeRate}
-                onChange={(e) => setExchangeRate(Number(e.target.value))}
-                disabled={currency === "USD"}
-              />
-            </>
-          )}
+        <FormInput label="سعر الشراء" type="number" {...register("payPrice")} />
+        <FormInput
+          label="سعر المبيع"
+          type="number"
+          {...register("sellPrice")}
+        />
+        <FormInput label="الكمية" type="number" {...register("quantity")} />
+        <FormInput label="الواحدة" {...register("unit")} />
 
-          <SupplierSelect
-            className="mt-6"
-            isOpen={openSupplier}
-            setIsOpen={setOpenSupplier}
-            supplierId={supplierId}
-            setSupplierId={setSupplierId}
-            withDataTable={true}
+        {/* نوع الدفع */}
+        <div className="md:col-span-2 grid grid-cols-3 gap-2">
+          {(["cash", "part", "debt"] as const).map((v) => (
+            <Button
+              key={v}
+              type="button"
+              variant={isDebt === v ? "default" : "outline"}
+              onClick={() => setValue("isDebt", v)}
+            >
+              {v === "cash" ? "نقداً" : v === "part" ? "جزئي" : "دين"}
+            </Button>
+          ))}
+        </div>
+
+        {isDebt === "part" && (
+          <FormInput
+            label="قيمة الدفعة"
+            type="number"
+            {...register("partValue")}
           />
-          <Button className="col-span-2" type="submit">
-            اضافة
-          </Button>
-        </form>
-      </PopupForm>
-    </div>
+        )}
+
+        {isDebt !== "debt" && (
+          <>
+            <Controller
+              control={control}
+              name="currency"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="mt-6">
+                    <SelectValue placeholder="العملة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="SYP">SYP</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+
+            <FormInput
+              label="سعر الصرف"
+              type="number"
+              disabled={currency === "USD"}
+              {...register("exchangeRate")}
+            />
+          </>
+        )}
+
+        <Controller
+          control={control}
+          name="supplierId"
+          render={({ field }) => (
+            <SupplierSelect
+              className="mt-6"
+              isOpen={openSupplier}
+              setIsOpen={setOpenSupplier}
+              supplierId={field.value}
+              setSupplierId={field.onChange}
+              withDataTable
+            />
+          )}
+        />
+
+        <Button
+          className="md:col-span-2"
+          type="submit"
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending ? "جارٍ الحفظ..." : row ? "تعديل" : "إضافة"}
+        </Button>
+      </form>
+    </PopupForm>
   );
 }

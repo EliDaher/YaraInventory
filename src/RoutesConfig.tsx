@@ -1,6 +1,5 @@
 import React from "react";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
-import SellDetails from "./pages/SellDetails";
 
 // Lazy Loading للصفحات
 const Products = React.lazy(() => import("@/pages/Products"));
@@ -17,9 +16,13 @@ const CustomerDetails = React.lazy(() => import("@/pages/CustomerDetails"));
 const SupplierDetails = React.lazy(() => import("@/pages/SupplierDetails"));
 const ProductDetails = React.lazy(() => import("@/pages/ProductDetails"));
 const Exchange = React.lazy(() => import("@/pages/Exchange"));
+const Warehouses = React.lazy(() => import("@/pages/Warehouses"));
+const SellDetails = React.lazy(() => import("@/pages/SellDetails"));
+const WarehousesDetails = React.lazy(() => import("@/pages/WarehousesDetails"));
 
 
 export const routesConfig = [
+  { path: "/", element: <Login /> },
   { path: "/login", element: <Login /> },
   { path: "/signUp", element: <SignUp /> },
   { path: "/unauthorized", element: <UnauthorizedPage /> },
@@ -34,5 +37,7 @@ export const routesConfig = [
   { path: "/productDetails", element: <ProductDetails /> },
   { path: "/sellDetails", element: <SellDetails /> },
   { path: "/Exchange", element: <Exchange /> },
+  { path: "/warehouses", element: <Warehouses /> },
+  { path: "/Warehouses/:id", element: <WarehousesDetails /> },
   { path: "*", element: <NotFound /> }
 ];

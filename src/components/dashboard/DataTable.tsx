@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -18,12 +18,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { inventoryUser } from "../layout/Header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TableColumn {
   key: string;
   label: string;
   sortable?: boolean;
   hidden?: boolean;
+  onlyAdmin?: boolean;
 }
 
 interface TableData {
@@ -41,10 +44,11 @@ interface DataTableProps {
   defaultPageSize?: number;
   getRowClassName?: (row: TableData) => string;
   renderRowActions?: (row: TableData) => React.ReactNode;
-  amountBold?: boolean
-  onRowClick?: any
-  selectedRows?: any[]
-  titleButton?: React.ReactNode
+  amountBold?: boolean;
+  onRowClick?: any;
+  selectedRows?: any[];
+  titleButton?: React.ReactNode;
+  isLoading?: boolean
 }
 
 export function DataTable({
@@ -60,8 +64,8 @@ export function DataTable({
   renderRowActions,
   amountBold = false,
   onRowClick,
-  selectedRows,
   titleButton,
+  isLoading
 }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{
@@ -70,6 +74,12 @@ export function DataTable({
   } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(defaultPageSize);
+
+  const [inventoryUser, setInventoryUser] = useState<inventoryUser>();
+  useEffect(() => {
+    const temUser = JSON.parse(localStorage.getItem("InventoryUser") || "null");
+    setInventoryUser(temUser);
+  }, []);
 
   const filteredData = data.filter((item) =>
     Object.values(item).some((value) =>
@@ -104,7 +114,13 @@ export function DataTable({
     if (key === "status") {
       return (
         <Badge
-          variant={value == "completed" || value == 'تم التسديد' ? "default" : value == 'جاري التسديد' ? 'secondary' : "destructive"}
+          variant={
+            value == "completed" || value == "تم التسديد"
+              ? "default"
+              : value == "جاري التسديد"
+                ? "secondary"
+                : "destructive"
+          }
           className="capitalize text-center"
         >
           {value}
@@ -114,26 +130,49 @@ export function DataTable({
     if (key === "email") {
       return <span className="text-muted-foreground">{value}</span>;
     }
-    if (key === "createdAt" || key === "date" || key === 'timestamp') {
-      return <span className="text-muted-foreground">{new Date(value).toLocaleString("en-GB")}</span>;
+    if (key === "createdAt" || key === "date" || key === "timestamp") {
+      return (
+        <span className="text-muted-foreground">
+          {value instanceof Date
+            ? value.toLocaleString("en-GB")
+            : !isNaN(Date.parse(value))
+              ? new Date(value).toLocaleString("en-GB")
+              : value}
+        </span>
+      );
     }
     if (key === "amount" && amountBold) {
-      return <span className="text-primary font-extrabold text-xl">{value}</span>;
+      return (
+        <span className="text-primary font-extrabold text-xl">{value}</span>
+      );
+    }
+    if (key === "quantity") {
+      return (
+        <span className="">
+          {typeof value == "number" ? value.toFixed(2) : value}
+        </span>
+      );
     }
     if (key === "totalPrice") {
       return (
-        <span className="">{value.toFixed(2)}</span>
+        <span className="">
+          {typeof value == "number" ? value.toFixed(2) : value}
+        </span>
       );
     }
     if (key === "balance") {
       return value > 0 ? (
         <span className="text-green-700 font-bold text-lg">له {value}</span>
       ) : (
-        <span className="text-destructive font-bold text-lg">عليه {-value}</span>
+        <span className="text-destructive font-bold text-lg">
+          عليه {-value}
+        </span>
       );
     }
-    return value
+    return value;
   };
+
+  const SKELETON_ROWS = Array.from({ length: pageSize });
 
   return (
     <Card className={className}>
@@ -142,7 +181,11 @@ export function DataTable({
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <div>
               <CardTitle>{title}</CardTitle>
-              {description && <CardDescription className="mt-2">{description}</CardDescription>}
+              {description && (
+                <CardDescription className="mt-2">
+                  {description}
+                </CardDescription>
+              )}
             </div>
             {titleButton && <>{titleButton}</>}
           </div>
@@ -170,11 +213,22 @@ export function DataTable({
             <TableHeader>
               <TableRow>
                 {columns.map((column) => (
-                  <TableHead className={column.hidden ? 'hidden' : 'text-center'} key={column.key}>
+                  <TableHead
+                    className={
+                      column.hidden ||
+                      (column.onlyAdmin && inventoryUser?.role !== "admin")
+                        ? "hidden"
+                        : "text-center"
+                    }
+                    key={column.key}
+                  >
                     {column.sortable ? (
                       <Button
                         variant="ghost"
-                        onClick={() => {handleSort(column.key); console.log(column.hidden)}}
+                        onClick={() => {
+                          handleSort(column.key);
+                          console.log(column.hidden);
+                        }}
                         className={`h-auto p-0 font-medium`}
                       >
                         {column.label}
@@ -193,7 +247,30 @@ export function DataTable({
               </TableRow>
             </TableHeader>
             <TableBody className="">
-              {paginatedData.length > 0 ? (
+              {isLoading ? (
+                SKELETON_ROWS.map((_, rowIndex) => (
+                  <TableRow key={`skeleton-${rowIndex}`}>
+                    {columns.map((column) => (
+                      <TableCell
+                        key={column.key}
+                        className={
+                          column.hidden ||
+                          (column.onlyAdmin && inventoryUser?.role !== "admin")
+                            ? "hidden"
+                            : ""
+                        }
+                      >
+                        <Skeleton className="h-4 w-full rounded-md" />
+                      </TableCell>
+                    ))}
+                    {renderRowActions && (
+                      <TableCell>
+                        <Skeleton className="h-4 w-16 rounded-md" />
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              ) : paginatedData.length > 0 ? (
                 paginatedData.map((row, index) => (
                   <TableRow
                     onClick={() => onRowClick?.(row)}
@@ -201,7 +278,15 @@ export function DataTable({
                     className={getRowClassName ? getRowClassName(row) : ""}
                   >
                     {columns.map((column) => (
-                      <TableCell className={column.hidden ? 'hidden' : ''} key={column.key}>
+                      <TableCell
+                        className={
+                          column.hidden ||
+                          (column.onlyAdmin && inventoryUser?.role !== "admin")
+                            ? "hidden"
+                            : ""
+                        }
+                        key={column.key}
+                      >
                         {renderCellContent(row[column.key], column.key)}
                       </TableCell>
                     ))}
@@ -212,7 +297,10 @@ export function DataTable({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length + (renderRowActions ? 1 : 0)} className="text-center">
+                  <TableCell
+                    colSpan={columns.length + (renderRowActions ? 1 : 0)}
+                    className="text-center"
+                  >
                     No data found.
                   </TableCell>
                 </TableRow>
@@ -225,7 +313,7 @@ export function DataTable({
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">عدد الاسطر :</span>
             <select
-              className="border rounded px-2 py-1 text-sm"
+              className="border rounded px-2 py-1 text-sm bg-background"
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
@@ -254,7 +342,9 @@ export function DataTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={currentPage === totalPages || totalPages === 0}
             >
               <ChevronLeft className="h-4 w-4" />

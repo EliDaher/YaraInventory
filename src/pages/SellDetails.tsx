@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 import { deleteSellById, getAllSellById, updateSellById } from "@/services/sells";
 import {
@@ -26,6 +26,7 @@ export default function SellDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const id = location.state as string;
+  const queryClient = useQueryClient();
 
   const { data: sell, isLoading } = useQuery({
     queryKey: ["sell-details", id],
@@ -45,6 +46,7 @@ export default function SellDetails() {
     mutationFn: (data: any) => updateSellById(id, data),
     onSuccess: () => {
       alert("تم تحديث الفاتورة بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["customer-details", sell.customerId] });
       navigate(-1);
     },
     onError: (error) => {
@@ -57,6 +59,9 @@ export default function SellDetails() {
     mutationFn: (data: any) => deleteSellById(id, data),
     onSuccess: () => {
       alert("تم حذف الفاتورة بنجاح");
+      queryClient.invalidateQueries({
+        queryKey: ["customer-details", sell.customerId],
+      });
       navigate(-1);
     },
     onError: (error) => {
@@ -104,10 +109,16 @@ export default function SellDetails() {
         {/* 🧾 رأس الفاتورة */}
         <Card className="shadow-md">
           <CardHeader className="flex justify-between flex-row-reverse items-center gap-4">
-            <Button onClick={() => navigate(-1)} className="w-24" variant="outline">
+            <Button
+              onClick={() => navigate(-1)}
+              className="w-24"
+              variant="outline"
+            >
               <ArrowLeft className="ml-2 w-4 h-4" /> رجوع
             </Button>
-            <CardTitle className="text-2xl font-semibold">تفاصيل الفاتورة</CardTitle>
+            <CardTitle className="text-2xl font-semibold">
+              تفاصيل الفاتورة
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-2">
@@ -134,28 +145,37 @@ export default function SellDetails() {
                     sell.paymentStatus === "cash"
                       ? "default"
                       : sell.paymentStatus === "part"
-                      ? "secondary"
-                      : "destructive"
+                        ? "secondary"
+                        : "destructive"
                   }
                 >
                   {sell.paymentStatus === "cash"
                     ? "مدفوع"
                     : sell.paymentStatus === "part"
-                    ? "مدفوع جزئياً"
-                    : "دين"}
+                      ? "مدفوع جزئياً"
+                      : "دين"}
                 </Badge>
               </div>
               <div>
-                <Button 
+                <Button
                   variant="destructive"
-                  onClick={()=>{
+                  onClick={() => {
                     deleteSellMutation.mutate({
                       id: sell.id,
-                      data: {products, balance: sell.totalPrice - products.reduce((acc, p) => acc + (p.sellPrice * p.qty), 0) },
-                    })
+                      data: {
+                        products,
+                        balance:
+                          sell.totalPrice -
+                          products.reduce(
+                            (acc, p) => acc + p.sellPrice * p.qty,
+                            0,
+                          ),
+                      },
+                    });
                   }}
+                  disabled={deleteSellMutation.isPending}
                 >
-                  حذف
+                  {deleteSellMutation.isPending ? "جاري الحذف..." : "حذف"}
                 </Button>
               </div>
             </div>
@@ -165,9 +185,21 @@ export default function SellDetails() {
         {/* 📦 جدول المنتجات */}
         <Card className="shadow-md">
           <CardHeader className="flex justify-between items-center">
-            <CardTitle className="text-xl font-semibold">المنتجات المباعة</CardTitle>
-            <Button variant="outline" onClick={handleSaveChanges}>
-              <Save className="ml-2 w-4 h-4" /> حفظ التعديلات
+            <CardTitle className="text-xl font-semibold">
+              المنتجات المباعة
+            </CardTitle>
+            <Button
+              variant="outline"
+              onClick={handleSaveChanges}
+              disabled={updateSellMutation.isPending}
+            >
+              {updateSellMutation.isPending ? (
+                "جاري الحفظ..."
+              ) : (
+                <>
+                  <Save className="ml-2 w-4 h-4" /> حفظ التعديلات
+                </>
+              )}
             </Button>
           </CardHeader>
           <CardContent>
@@ -197,10 +229,15 @@ export default function SellDetails() {
                         onDoubleClick={() => handleDoubleClick(idx, field)}
                         className="cursor-pointer"
                       >
-                        {editingCell?.row === idx && editingCell?.field === field ? (
+                        {editingCell?.row === idx &&
+                        editingCell?.field === field ? (
                           <input
                             autoFocus
-                            type={field === "qty" || field === "sellPrice" ? "number" : "text"}
+                            type={
+                              field === "qty" || field === "sellPrice"
+                                ? "number"
+                                : "text"
+                            }
                             value={p[field]}
                             onChange={(e) => handleChange(e, idx, field)}
                             onBlur={handleBlur}
