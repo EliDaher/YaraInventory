@@ -29,9 +29,9 @@ interface TransferFormProps {
 /* ---------------------------------- */
 const transferSchema = z.object({
   warehouse: z.string().min(1, "اختر المستودع المنقول إليه"),
-  quantity: z.number().positive("الكمية يجب أن تكون أكبر من صفر"),
-  sellPrice: z.number().positive("سعر المبيع غير صحيح"),
-  amount: z.number().min(0, "تكلفة النقل غير صحيحة"),
+  quantity: z.coerce.number().positive("الكمية يجب أن تكون أكبر من صفر"),
+  sellPrice: z.coerce.number().positive("سعر المبيع غير صحيح"),
+  amount: z.coerce.number().min(0, "تكلفة النقل غير صحيحة"),
   currency: z.enum(["USD", "SYP"]),
   note: z.string().optional(),
 });
