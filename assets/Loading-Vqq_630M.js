@@ -1,0 +1,1 @@
+import{j as e}from"./index-H-wgWPw7.js";function s(){return e.jsx(e.Fragment,{children:e.jsx("div",{className:"flex items-center justify-center h-screen",children:e.jsx("div",{className:"animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"})})})}export{s as L};
