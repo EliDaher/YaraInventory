@@ -8,8 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FilterSelection from "@/components/ui/custom/FilterSelection";
 import FormInput from "@/components/ui/custom/FormInput";
 import Loading from "@/components/ui/custom/Loading";
-import getAllProducts from "@/services/products";
-import { useQuery } from "@tanstack/react-query";
+import { useProductContext } from "@/contexts/ProductContext";
 import { Box } from "lucide-react";
 import { useState, useMemo } from "react";
 
@@ -38,11 +37,8 @@ export default function Products() {
   const [onlyLowStock, setOnlyLowStock] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
-  const { data: products, isLoading: productsLoading } = useQuery({
-    queryKey: ["products-table"],
-    queryFn: getAllProducts,
-  });
-
+  const { data: products = [], isLoading: productsLoading } = useProductContext();
+  
 
   // =======================
   // تصفية البيانات
@@ -50,9 +46,7 @@ export default function Products() {
   const filteredData = useMemo(() => {
     if (!products) return [];
 
-    let rows: ProductTableRow[] = Object.values(products).flatMap((w: any) =>
-      Object.values(w),
-    );
+    let rows: ProductTableRow[] = products
 
     if (warehouseFilter !== "all") {
       rows = rows.filter((p) => p.warehouse === warehouseFilter);

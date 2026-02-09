@@ -1,4 +1,5 @@
 import CustomerPaymentForm from "@/components/Customers/CustomerPaymentForm";
+import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
@@ -21,7 +22,7 @@ import Skeleton from "@mui/material/Skeleton";
 import { Select } from "@radix-ui/react-select";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function CustomerDetails() {
@@ -92,7 +93,11 @@ export default function CustomerDetails() {
     enabled: !!customerId,
   });
 
-  if (data && customer.id !== data.id) setCustomer(data);
+  useEffect(() => {
+    if (data?.data) {
+      setCustomer(data.data);
+    }
+  }, [data]);
 
   const paymentsColumns = [
     { label: "المعرف", key: "id", hidden: true },
@@ -124,35 +129,10 @@ export default function CustomerDetails() {
             <CardTitle>المعلومات الأساسية</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data &&
-              Object.entries(data.data).map(([key, value]) => {
-                if (["payments", "purchases", "id"].includes(key)) return null;
-                return (
-                  <p
-                    key={key}
-                    className="flex gap-2 relative group mb-4 items-end"
-                  >
-                    <label className="block font-bold w-36">{key}:</label>
-                    {key.includes("date") &&
-                    new Date(value as any).toString() !== "Invalid Date" ? (
-                      <input
-                        type="text"
-                        value={new Date(value as any).toLocaleString("en-GB")}
-                        readOnly
-                        className="bg-transparent border-b-2 border-transparent focus:border-primary-500 outline-none transition-all w-full"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={value as any}
-                        readOnly
-                        className="bg-transparent border-b-2 border-transparent focus:border-primary-500 outline-none transition-all w-full"
-                      />
-                    )}
-                    <span className="absolute bottom-0 right-0 w-full h-[2px] bg-primary-500 scale-x-0 group-hover:scale-x-100 origin-right transition-transform duration-300"></span>
-                  </p>
-                );
-              })}
+            <DetailsInputs
+              customer={customer}
+              setCustomer={setCustomer}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <CustomerPaymentForm

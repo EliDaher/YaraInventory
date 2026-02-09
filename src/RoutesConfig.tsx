@@ -19,6 +19,7 @@ const Exchange = React.lazy(() => import("@/pages/Exchange"));
 const Warehouses = React.lazy(() => import("@/pages/Warehouses"));
 const SellDetails = React.lazy(() => import("@/pages/SellDetails"));
 const WarehousesDetails = React.lazy(() => import("@/pages/WarehousesDetails"));
+const Categories = React.lazy(() => import("@/pages/Categories"));
 
 
 export const routesConfig = [
@@ -39,5 +40,6 @@ export const routesConfig = [
   { path: "/Exchange", element: <Exchange /> },
   { path: "/warehouses", element: <Warehouses /> },
   { path: "/Warehouses/:id", element: <WarehousesDetails /> },
+  { path: "/categories", element: <Categories /> },
   { path: "*", element: <NotFound /> }
 ];

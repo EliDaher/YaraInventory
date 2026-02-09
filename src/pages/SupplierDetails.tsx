@@ -1,3 +1,4 @@
+import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
@@ -54,8 +55,8 @@ export default function SupplierDetails() {
 
   // ✅ تحديث الحالة عند وصول البيانات
   useEffect(() => {
-    if (data) {
-      setSupplier(data);
+    if (data?.data) {
+      setSupplier(data.data);
     }
   }, [data]);
 
@@ -163,37 +164,11 @@ export default function SupplierDetails() {
             <CardTitle>المعلومات الأساسية</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data &&
-              Object.entries(data.data).map(([key, value]) => {
-                if (key === "payments" || key === "purchases" || key === "id")
-                  return null;
-
-                return (
-                  <p
-                    key={key}
-                    className="flex gap-2 relative group mb-4 items-end"
-                  >
-                    <label className="block font-bold w-36">{key}:</label>
-                    {key.includes("date") &&
-                    new Date(value as any).toString() !== "Invalid Date" ? (
-                      <input
-                        type="text"
-                        value={new Date(value as any).toLocaleString("en-GB")}
-                        readOnly
-                        className="bg-transparent border-b-2 border-transparent focus:border-primary-500 outline-none transition-all w-full"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={value as any}
-                        readOnly
-                        className="bg-transparent border-b-2 border-transparent focus:border-primary-500 outline-none transition-all w-full"
-                      />
-                    )}
-                    <span className="absolute bottom-0 right-0 w-full h-[2px] bg-primary-500 scale-x-0 group-hover:scale-x-100 origin-right transition-transform duration-300"></span>
-                  </p>
-                );
-              })}
+            <DetailsInputs
+              customer={supplier}
+              setCustomer={setSupplier}
+              isSupplier={true}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               {/* دفعة من المورد */}

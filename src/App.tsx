@@ -4,9 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import { routesConfig } from "./RoutesConfig";
 import { WarehouseProvider } from "./contexts/WarehouseContexts";
+import { ProductProvider } from "./contexts/ProductContext";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
+import Loading from "./components/ui/custom/Loading";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,23 +23,33 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <WarehouseProvider>
-    <ThemeProvider storageKey="dashboard-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <HashRouter>
-          <Suspense
-            fallback={<div className="p-10 text-center">Loading...</div>}
-          >
-            <Routes>
-              {routesConfig.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
-              ))}
-            </Routes>
-          </Suspense>
-        </HashRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+      <ProductProvider>
+        <ThemeProvider storageKey="dashboard-theme">
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <HashRouter>
+              <Suspense
+                fallback={
+                  <DashboardLayout>
+                    <Loading/>
+                  </DashboardLayout>
+                }
+              >
+                <Routes>
+                  {routesConfig.map((route, index) => (
+                    <Route
+                      key={index}
+                      path={route.path}
+                      element={route.element}
+                    />
+                  ))}
+                </Routes>
+              </Suspense>
+            </HashRouter>
+          </TooltipProvider>
+        </ThemeProvider>
+      </ProductProvider>
     </WarehouseProvider>
   </QueryClientProvider>
 );

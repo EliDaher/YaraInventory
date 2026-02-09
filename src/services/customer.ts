@@ -1,3 +1,4 @@
+import { Customer } from "@/components/Customers/DetailsInputs";
 import apiClient from "@/lib/axios";
 
 export default async function getAllCustomer() {
@@ -34,7 +35,6 @@ export async function addCustomer({
 export async function getCustomerById({ id }: { id: string }) {
   try {
     const response = await apiClient.post("/api/customers/byId", { id });
-    console.log(response.data);
     return response.data;
   } catch (err) {
     console.error("خطأ في جلب المورد:", err);
@@ -42,4 +42,14 @@ export async function getCustomerById({ id }: { id: string }) {
   }
 }
 
+
+export async function updateCustomer(id: string, data: Partial<Customer>) {
+  try {
+    const response = await apiClient.put(`/api/customers/${id}`, {name: data.name, number: data.number});
+    return response.data;
+  } catch (err) {
+    console.error("خطأ في تحديث العميل:", err);
+    throw new Error("خطأ أثناء تحديث بيانات العميل");
+  }
+}
 

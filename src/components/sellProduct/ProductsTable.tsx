@@ -20,8 +20,8 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
   const filteredProducts = useMemo(
     () =>
       products.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.code.toLowerCase().includes(search.toLowerCase())
+        p?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        p?.code?.toLowerCase().includes(search.toLowerCase())
       ),
     [products, search]
   );

@@ -9,6 +9,7 @@ import {
   FileText,
   Warehouse,
   UserPlus,
+  Shapes,
   
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,38 +20,44 @@ const navigationGroups = [
     name: "All Products",
     href: "/Products",
     icon: Package,
-    allowed: ["admin"]
+    allowed: ["admin"],
   },
   {
     name: "Sell Product",
     href: "/SellProduct",
     icon: ShoppingCart,
-    allowed: ["admin"]
+    allowed: ["admin"],
   },
   {
     name: "Suppliers",
     href: "/Suppliers",
     icon: UserPlus,
-    allowed: ["admin"]
+    allowed: ["admin"],
   },
   {
     name: "Customers",
     href: "/customers",
     icon: Users2,
-    allowed: ["admin"]
+    allowed: ["admin"],
   },
   {
     name: "Financial Statement",
     href: "/financialStatement",
     icon: FileText,
-    allowed: ["admin"]
+    allowed: ["admin"],
   },
   {
     name: "Warehouses",
     href: "/warehouses",
     icon: Warehouse,
-    allowed: ["admin"]
+    allowed: ["admin"],
   },
+  // {
+  //   name: "Categories",
+  //   href: "/categories",
+  //   icon: Shapes,
+  //   allowed: ["admin"],
+  // },
   // {
   //   name: "Exchange",
   //   href: "/Exchange",

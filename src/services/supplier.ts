@@ -32,3 +32,14 @@ export async function getSupplierById({ id }: { id: string }) {
     throw new Error("خطأ أثناء جلب المورد بواسطة المعرف");
   }
 }
+
+
+export async function updateSupplier(id: string, data: Partial<any>) {
+  try {
+    const response = await apiClient.put(`/api/suppliers/${id}`, {name: data.name, number: data.number});
+    return response.data;
+  } catch (err) {
+    console.error("خطأ في تحديث العميل:", err);
+    throw new Error("خطأ أثناء تحديث بيانات العميل");
+  }
+}

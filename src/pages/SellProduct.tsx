@@ -114,11 +114,7 @@ export default function SellProduct() {
           </div>
           <div className='md:col-span-2'>
             <ProductsTable 
-              products={
-                products ? Object.values(products || {}).flatMap((warehouse: any) =>
-                  Object.values(warehouse)
-                ) : []
-              } 
+              products={products} 
               setAmount={setAmount}
               onChange={(selected) => setSelectedProducts(selected)}
             />
@@ -173,14 +169,13 @@ export default function SellProduct() {
               </SelectContent>
             </Select>            
             <FormInput
-                id='exchangeRate'
-                label="سعر الصرف"
-                value={currency == 'USD' ? 1 : exchangeRate}
-                onChange={(e) => setExchangeRate(Number(e.target.value))}
-                          disabled={currency === "USD"}
+              id='exchangeRate'
+              label="سعر الصرف"
+              value={currency == 'USD' ? 1 : exchangeRate}
+              onChange={(e) => setExchangeRate(Number(e.target.value))}
+              disabled={currency === "USD"}
             /></>}
             
-
             <Button 
               className='w-full md:col-span-2'
               variant='accent'
