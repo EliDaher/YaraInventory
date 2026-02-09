@@ -128,7 +128,7 @@ export default function CustomerDetails() {
           <CardHeader>
             <CardTitle>المعلومات الأساسية</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="grid grid-cols-1 gap-4">
             <DetailsInputs
               customer={customer}
               setCustomer={setCustomer}
