@@ -8,7 +8,6 @@ import { Suspense } from "react";
 import { routesConfig } from "./RoutesConfig";
 import { WarehouseProvider } from "./contexts/WarehouseContexts";
 import { ProductProvider } from "./contexts/ProductContext";
-import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Loading from "./components/ui/custom/Loading";
 
 const queryClient = new QueryClient({
@@ -31,9 +30,7 @@ const App = () => (
             <HashRouter>
               <Suspense
                 fallback={
-                  <DashboardLayout>
-                    <Loading/>
-                  </DashboardLayout>
+                  <Loading/>
                 }
               >
                 <Routes>

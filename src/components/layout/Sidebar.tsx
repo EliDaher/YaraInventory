@@ -109,7 +109,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Dashboard Link */}
-      {['admin', 'dealer'].includes(user.role) && <nav className="px-2 py-3">
+      {['admin'].includes(user?.role) && <nav className="px-2 py-3">
         <Link
           to="/dashboard"
           className={cn(
@@ -129,7 +129,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         {navigationGroups.map((group) => {
           const isActive = location.pathname === group.href;
           return (
-            group.allowed.includes(user.role) && (
+            group.allowed.includes(user?.role) && (
               <Link
                 key={group.name}
                 to={group.href}

@@ -30,7 +30,7 @@ export const routesConfig = [
   { path: "/Products", element: <Products />},
   { path: "/suppliers", element:  <Suppliers /> },
   { path: "/customers", element:  <Customers /> },
-  { path: "/dashboard", element: <PrivateRoute allowedRoles={["admin", "dealer"]}><Dashboard /></PrivateRoute> },
+  { path: "/dashboard", element: <PrivateRoute allowedRoles={["admin"]}><Dashboard /></PrivateRoute> },
   { path: "/sellProduct", element: <SellProduct /> },
   { path: "/financialStatement", element: <FinancialStatement /> },
   { path: "/SupplierDetails", element: <SupplierDetails /> },

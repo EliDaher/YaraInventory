@@ -17,7 +17,6 @@ export default function Login() {
     const res = await userLogin({ username, password });
 
     if (res?.message.includes('بنجاح')) {
-      console.log(res.user)
       localStorage.setItem("InventoryUser", JSON.stringify(res.user));
       navigate("/dashboard");
 

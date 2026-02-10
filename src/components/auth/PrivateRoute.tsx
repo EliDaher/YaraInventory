@@ -1,17 +1,35 @@
 import { Navigate } from "react-router-dom";
 
-export function PrivateRoute({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) {
+interface PrivateRouteProps {
+  children: JSX.Element;
+  allowedRoles?: string[];
+}
+
+export function PrivateRoute({
+  children,
+  allowedRoles = [],
+}: PrivateRouteProps) {
   const userStr = localStorage.getItem("InventoryUser");
-  if (!userStr) return <Navigate to="/login" replace />;
+
+  if (!userStr) {
+    return <Navigate to="/login" replace />;
+  }
+
+  let user: any = null;
 
   try {
-    const user = JSON.parse(userStr);
-    if (allowedRoles.includes(user.role)) {
-      return <>{children}</>;
-    } else {
-      return <Navigate to="/unauthorized" replace />;
-    }
+    user = JSON.parse(userStr);
   } catch {
     return <Navigate to="/login" replace />;
   }
+
+  if (!user || !user.role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return children;
 }

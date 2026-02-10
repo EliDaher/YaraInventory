@@ -21,10 +21,10 @@ const NotFound = () => {
           </div>
 
           <div className="space-y-3">
-            <Link to={['admin', 'dealer'].includes('admin') ? `/dashboard` : '/invoices'}>
+            <Link to={`/dashboard`}>
               <Button className="w-full">
                 <Home className="mr-2 h-4 w-4" />
-                {['admin', 'dealer'].includes('admin') ? 'Go to Dashboard' : 'Go to Invoices'}
+                Go to Dashboard
               </Button>
             </Link>
             <Button variant="outline" onClick={() => window.history.back()}>
