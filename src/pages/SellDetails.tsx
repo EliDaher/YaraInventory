@@ -130,7 +130,7 @@ export default function SellDetails() {
           <CardContent className="space-y-2">
             
             <div 
-              className="flex flex-col md:flex-row gap-2 md:gap-4"
+              className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4"
             >
 
             <CustomerDiscountForm
