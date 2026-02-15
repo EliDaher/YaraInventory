@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import FormInput from "../ui/custom/FormInput";
 import { addCustomer } from "@/services/customer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export default function CustomerSelect({ isOpen, setIsOpen, className }) {
   const [customerName, setCustomerName] = React.useState("");
@@ -25,7 +26,7 @@ export default function CustomerSelect({ isOpen, setIsOpen, className }) {
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء إضافة الزبون");
+      toast.error("حدث خطأ أثناء إضافة الزبون");
     },
   });
 
@@ -49,7 +50,7 @@ export default function CustomerSelect({ isOpen, setIsOpen, className }) {
         className="space-y-4"
         onSubmit={() => {
           if (!customerName || !customerNumber) {
-            alert("يرجى ملء جميع الحقول");
+            toast.error("يرجى ملء جميع الحقول");
             return;
           } else {
             addCustomerMutation.mutate({

@@ -7,6 +7,7 @@ import { getAllDoneExchange, getAllExchange } from '@/services/exchange';
 import { endExchange } from '@/services/transaction';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 
 export default function Exchange() {
@@ -52,7 +53,7 @@ export default function Exchange() {
     const endExchangeMutation = useMutation({
         mutationFn: (dataToSend: any) => endExchange(dataToSend as any),
         onSuccess: () => {
-            alert("تم إضافة الدفعة بنجاح!");
+            toast.success("تم إضافة الدفعة بنجاح!");
             setAmountFinal(0);
             setFinalRate(0);
             setIsOpen(false)
@@ -61,7 +62,7 @@ export default function Exchange() {
         },
         onError: (error) => {
           console.error(error);
-          alert("حدث خطأ أثناء إضافة المنتج");
+          toast.error("حدث خطأ أثناء إنهاء التحويل");
         }
     });
     

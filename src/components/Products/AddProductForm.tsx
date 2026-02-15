@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import WarehouseSelect from "../Warehouses/WarehouseSelect";
+import { toast } from "sonner";
 
 type FormValues = z.infer<typeof addProductSchema>;
 
@@ -89,12 +90,12 @@ export default function AddProductForm({
 
 
     if (values.isDebt !== "debt" && !values.currency) {
-      alert("الرجاء اختيار العملة");
+      toast.error("الرجاء اختيار العملة");
       return;
     }
 
     if (values.isDebt === "part" && (values.partValue ?? 0) <= 0) {
-      alert("الرجاء إدخال قيمة الدفعة الجزئية");
+      toast.error("الرجاء إدخال قيمة الدفعة الجزئية");
       return;
     }
 
@@ -103,12 +104,12 @@ export default function AddProductForm({
       values.currency === "SYP" &&
       values.exchangeRate <= 0
     ) {
-      alert("الرجاء إدخال سعر صرف صحيح");
+      toast.error("الرجاء إدخال سعر صرف صحيح");
       return;
     }
 
     if (values.isDebt === "part" && (values.partValue ?? 0) >= total) {
-      alert("قيمة الدفعة الجزئية لا يمكن أن تكون أكبر أو تساوي المبلغ الكلي");
+      toast.error("قيمة الدفعة الجزئية لا يمكن أن تكون أكبر أو تساوي المبلغ الكلي");
       return;
     }
 

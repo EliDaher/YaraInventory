@@ -1,11 +1,7 @@
 import { DataTable } from '@/components/dashboard/DataTable';
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { Button } from '@/components/ui/button';
-import FormInput from '@/components/ui/custom/FormInput';
-import PopupForm from '@/components/ui/custom/PopupForm';
 import getAllCustomer from '@/services/customer';
-import { payCustomerDebt } from '@/services/transaction';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import AddCustomerForm from '@/components/Customers/AddCustomerForm'
 import { StatsCard } from '@/components/dashboard/StatsCard';

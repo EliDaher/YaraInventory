@@ -18,9 +18,15 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Loader2, Trash2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Trash2, Save, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import ConfirmForm from "@/components/ui/custom/ConfirmForm";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import PdfDocument from "@/components/pdf/PdfDocument";
+import InvoicePdf from "@/components/pdf/InvoicePdf";
+import CustomerDiscountForm from "@/components/Customers/CustomerDiscountForm";
+import { toast } from "sonner";
 
 export default function SellDetails() {
   const location = useLocation();
@@ -36,6 +42,7 @@ export default function SellDetails() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [editingCell, setEditingCell] = useState<{ row: number; field: string } | null>(null);
+  const [isDiscountFormOpen, setIsDiscountFormOpen] = useState(false);
 
   // بمجرد تحميل البيانات، خزّن المنتجات في state المحلي
   if (!isLoading && sell && products.length === 0) {
@@ -45,20 +52,20 @@ export default function SellDetails() {
   const updateSellMutation = useMutation({
     mutationFn: (data: any) => updateSellById(id, data),
     onSuccess: () => {
-      alert("تم تحديث الفاتورة بنجاح");
+      toast.success("تم تحديث الفاتورة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["customer-details", sell.customerId] });
       navigate(-1);
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء تحديث الفاتورة");
+      toast.error("حدث خطأ أثناء تحديث الفاتورة");
     }
   });
   
   const deleteSellMutation = useMutation({
     mutationFn: (data: any) => deleteSellById(id, data),
     onSuccess: () => {
-      alert("تم حذف الفاتورة بنجاح");
+      toast.success("تم حذف الفاتورة بنجاح");
       queryClient.invalidateQueries({
         queryKey: ["customer-details", sell.customerId],
       });
@@ -66,7 +73,7 @@ export default function SellDetails() {
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء حذف الفاتورة");
+      toast.error("حدث خطأ أثناء حذف الفاتورة");
     }
   });
     
@@ -106,16 +113,90 @@ export default function SellDetails() {
   return (
     <DashboardLayout>
       <div className="space-y-6 p-6 max-w-5xl mx-auto">
-        {/* 🧾 رأس الفاتورة */}
-        <Card className="shadow-md">
-          <CardHeader className="flex justify-between flex-row-reverse items-center gap-4">
+        <Card>
+          <CardHeader className="flex justify-between flex-row items-center gap-4">
+            <CardTitle className="text-2xl font-semibold">
+              اجراءات الفاتورة
+            </CardTitle>
             <Button
               onClick={() => navigate(-1)}
               className="w-24"
               variant="outline"
             >
-              <ArrowLeft className="ml-2 w-4 h-4" /> رجوع
+              <ArrowLeft className="" /> رجوع
             </Button>
+          </CardHeader>
+
+          <CardContent className="space-y-2">
+            
+            <div 
+              className="flex flex-col md:flex-row gap-2 md:gap-4"
+            >
+
+            <CustomerDiscountForm
+              isOpen={isDiscountFormOpen}
+              setIsOpen={setIsDiscountFormOpen}
+              customerId={sell.customerId}
+              sellId={sell.id}
+            />
+
+
+            <Button className="w-full">
+              <PDFDownloadLink
+                document={
+                  <PdfDocument>
+                    <InvoicePdf sell={{ ...sell, products }} />
+                  </PdfDocument>
+                }
+                fileName={`فاتورة_${sell.customerName}_${sell.date}.pdf`}
+                >
+                {({ loading }) =>
+                  loading ? (
+                    "جاري إنشاء الفاتورة..."
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <FileText className="w-4 h-4 ml-2" />
+                      تصدير الفاتورة PDF
+                    </div>
+                  )
+                }
+              </PDFDownloadLink>
+            </Button>
+
+            <ConfirmForm
+              title="حذف الفاتورة"
+              description="هل أنت متأكد؟ سيتم حذف الفاتورة وتعديل الرصيد ولا يمكن التراجع."
+              confirmText="نعم، احذف الفاتورة"
+              loading={deleteSellMutation.isPending}
+              onConfirm={() =>
+                deleteSellMutation.mutate({
+                  id: sell.id,
+                  data: {
+                    products,
+                    balance:
+                    sell.totalPrice -
+                    products.reduce((acc, p) => acc + p.sellPrice * p.qty, 0),
+                  },
+                })
+              }
+              trigger={
+                <Button
+                variant="destructive"
+                className="w-full"
+                disabled={deleteSellMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  حذف الفاتورة
+                </Button>
+              }
+              />
+              </div>
+          </CardContent>
+        </Card>
+
+        {/* 🧾 رأس الفاتورة */}
+        <Card className="shadow-md">
+          <CardHeader className="flex justify-between items-center gap-4">
             <CardTitle className="text-2xl font-semibold">
               تفاصيل الفاتورة
             </CardTitle>
@@ -155,28 +236,6 @@ export default function SellDetails() {
                       ? "مدفوع جزئياً"
                       : "دين"}
                 </Badge>
-              </div>
-              <div>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    deleteSellMutation.mutate({
-                      id: sell.id,
-                      data: {
-                        products,
-                        balance:
-                          sell.totalPrice -
-                          products.reduce(
-                            (acc, p) => acc + p.sellPrice * p.qty,
-                            0,
-                          ),
-                      },
-                    });
-                  }}
-                  disabled={deleteSellMutation.isPending}
-                >
-                  {deleteSellMutation.isPending ? "جاري الحذف..." : "حذف"}
-                </Button>
               </div>
             </div>
           </CardContent>
@@ -273,24 +332,30 @@ export default function SellDetails() {
             <div className="flex justify-between">
               <span>المجموع:</span>
               <span className="font-medium">
-                {sell.totalPrice.toLocaleString()}
+                {((sell?.totalPrice || 0) + (sell?.discount || 0)).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>الحسم:</span>
+              <span className="font-medium">
+                {sell?.discount?.toLocaleString() || 0}{" "}
               </span>
             </div>
             <div className="flex justify-between">
               <span>المدفوع:</span>
               <span className="font-medium">
-                {sell.partValue.toLocaleString()}
+                {sell?.partValue?.toLocaleString()}
               </span>
             </div>
             <Separator />
             <div className="flex justify-between text-lg font-semibold">
-              <span>المتبقي:</span>
+              <span></span>
               <span
                 className={
                   sell.remainingDebt > 0 ? "text-red-600" : "text-green-600"
                 }
               >
-                {sell.remainingDebt.toLocaleString()}
+                {((sell?.totalPrice || 0) - (sell?.partValue || 0))?.toLocaleString()}
               </span>
             </div>
           </CardContent>

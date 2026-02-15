@@ -16,7 +16,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { ArrowDown, ArrowUp, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);

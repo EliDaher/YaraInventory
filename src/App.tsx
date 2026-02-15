@@ -1,5 +1,4 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,14 +24,9 @@ const App = () => (
       <ProductProvider>
         <ThemeProvider storageKey="dashboard-theme">
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
+            <Toaster richColors position="bottom-right" duration={2500} />
             <HashRouter>
-              <Suspense
-                fallback={
-                  <Loading/>
-                }
-              >
+              <Suspense fallback={<Loading />}>
                 <Routes>
                   {routesConfig.map((route, index) => (
                     <Route

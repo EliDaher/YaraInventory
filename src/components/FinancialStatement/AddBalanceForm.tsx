@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createPayment, Payment } from "@/services/payments";
 import FormInput from "../ui/custom/FormInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { toast } from "sonner";
 
 export default function AddBalanceForm({isOpen, setIsOpen, className}: {isOpen: boolean; setIsOpen: React.Dispatch<React.SetStateAction<boolean>>; className?: string}) {
     
@@ -17,12 +18,12 @@ export default function AddBalanceForm({isOpen, setIsOpen, className}: {isOpen: 
         mutationFn: (dataToSend: Payment) =>
           createPayment({ newPayment: dataToSend }),
         onSuccess: () => {
-          alert("تم اضافة الدفعة!");
+          toast.success("تم اضافة الدفعة!");
           setIsOpen(false);
         },
         onError: (error) => {
           console.error(error);
-          alert("حدث خطأ اثناء الاضفة");
+          toast.error("حدث خطأ اثناء الاضافة");
         },
     });
 
@@ -51,17 +52,17 @@ export default function AddBalanceForm({isOpen, setIsOpen, className}: {isOpen: 
               e.preventDefault();
               
               if (amount <= 0) {
-                alert("الرجاء ادخال قيمة صحيحة للدفعة");
+                toast.error("الرجاء ادخال قيمة صحيحة للدفعة");
                 return;
               }
 
               if (currency !== "USD" && exchangeRate <= 0) {
-                alert("الرجاء ادخال سعر صرف صحيح");
+                toast.error("الرجاء ادخال سعر صرف صحيح");
                 return;
               }
 
               if (note.trim() === "") {
-                alert("الرجاء ادخال ملاحظة للدفعة");
+                toast.error("الرجاء ادخال ملاحظة للدفعة");
                 return;
               }
 

@@ -17,6 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface TransferFormProps {
   row: ProductTableRow;
@@ -111,7 +112,7 @@ export default function TransferForm({
 
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء نقل المنتج");
+      toast.error("حدث خطأ أثناء نقل المنتج");
     },
   });
 
@@ -120,17 +121,17 @@ export default function TransferForm({
   /* ---------------------------------- */
   const onSubmit = (values: TransferFormValues) => {
     if (values.quantity > row.quantity) {
-      alert("الكمية المدخلة أكبر من الكمية المتوفرة");
+      toast.error("الكمية المدخلة أكبر من الكمية المتوفرة");
       return;
     }
 
     if (isDebt === "part" && partValue <= 0) {
-      alert("الرجاء إدخال قيمة الدفعة الجزئية");
+      toast.error("الرجاء إدخال قيمة الدفعة الجزئية");
       return;
     }
 
     if (isDebt === "part" && partValue >= values.amount) {
-      alert("قيمة الدفعة الجزئية يجب أن تكون أقل من المبلغ الكلي");
+      toast.error("قيمة الدفعة الجزئية يجب أن تكون أقل من المبلغ الكلي");
       return;
     }
 

@@ -11,6 +11,7 @@ import {
 } from "../ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { payCustomerDebt } from "@/services/transaction";
+import { toast } from "sonner";
 
 export default function CustomerPaymentForm({ isOpen, setIsOpen, customerData }) {
   const [isDebt, setIsDebt] = useState<"cash" | "part" | "debt">("cash");
@@ -25,7 +26,7 @@ export default function CustomerPaymentForm({ isOpen, setIsOpen, customerData })
   const payCustomerDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => payCustomerDebt(dataToSend as any),
     onSuccess: () => {
-      alert("تم إضافة الدفعة بنجاح!");
+      toast.success("تم إضافة الدفعة بنجاح!");
       setAmount(0);
       setNote("");
       setCurrency("");
@@ -35,7 +36,7 @@ export default function CustomerPaymentForm({ isOpen, setIsOpen, customerData })
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء إضافة المنتج");
+      toast.error("حدث خطأ أثناء إضافة الدفعة");
     },
   });
 

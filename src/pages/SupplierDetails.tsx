@@ -25,6 +25,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function SupplierDetails() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export default function SupplierDetails() {
   const paySupplierDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => paySupplierDebt(dataToSend as any),
     onSuccess: () => {
-      alert("تم إضافة الدفعة بنجاح!");
+      toast.success("تم إضافة الدفعة بنجاح!");
       setAmount("");
       setNote("");
       setIsOpen(false);
@@ -75,7 +76,7 @@ export default function SupplierDetails() {
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء إضافة المنتج");
+      toast.error("حدث خطأ أثناء إضافة الدفعة");
     },
   });
 
@@ -94,7 +95,7 @@ export default function SupplierDetails() {
       reason: string;
     }) => handleSupplierReturn(dataToSend),
     onSuccess: () => {
-      alert("تم الارجاع بنجاح!");
+      toast.success("تم الارجاع بنجاح!");
       setReturnAmount('');
       setOpenRowId(null);
       queryClient.invalidateQueries({
@@ -103,7 +104,7 @@ export default function SupplierDetails() {
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء ارجاع المنتج");
+      toast.error("حدث خطأ أثناء ارجاع المنتج");
     },
   });
 
@@ -326,7 +327,7 @@ export default function SupplierDetails() {
               لا توجد معاملات حالياً.
             </p>
           ) : (
-            <CardContent className="space-y-4 md:space-y-0 grid md:grid-cols-2 gap-4">
+            <CardContent className="space-y-4 md:space-y-0 grid grid-cols-1 md:grid-cols-2 gap-4">
               <DataTable
                 title="الدفعات"
                 columns={paymentsColumns}

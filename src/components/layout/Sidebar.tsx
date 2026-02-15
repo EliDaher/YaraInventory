@@ -52,12 +52,12 @@ const navigationGroups = [
     icon: Warehouse,
     allowed: ["admin"],
   },
-  // {
-  //   name: "Categories",
-  //   href: "/categories",
-  //   icon: Shapes,
-  //   allowed: ["admin"],
-  // },
+  {
+    name: "Categories",
+    href: "/categories",
+    icon: Shapes,
+    allowed: ["admin"],
+  },
   // {
   //   name: "Exchange",
   //   href: "/Exchange",

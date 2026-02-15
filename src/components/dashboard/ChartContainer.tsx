@@ -138,12 +138,12 @@ export function ChartContainer({
                 dataKey="name"
                 tick={{ fontSize: 14 }}
                 tickLine={false}
-                axisLine={false}
+                axisLine={true}
               />
               <YAxis
                 tick={{ fontSize: 12 }}
                 tickLine={false}
-                axisLine={false}
+                axisLine={true}
               />
               <Tooltip
                 contentStyle={{

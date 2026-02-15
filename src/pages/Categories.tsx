@@ -20,7 +20,7 @@ const Categories = () => {
     const [search, setSearch] = useState("");
     
     const filteredCategories = Object.entries(groupedProducts).filter(([category]) =>
-        category.toLowerCase().includes(search.toLowerCase()),
+      category.toLowerCase().includes(search.toLowerCase()),
     );
 
   return (
@@ -77,7 +77,7 @@ const Categories = () => {
                 {filteredCategories.map(([categoryName, products]) => (
                   <Card
                     onDoubleClick={() =>
-                      navigate(`/categories/${categoryName}`)
+                      navigate(`/categories/${categoryName}`, { state: { products } })
                     }
                     key={categoryName}
                     className="group relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg"
@@ -99,7 +99,7 @@ const Categories = () => {
                         {/* View Details */}
                         <button
                           onClick={() =>
-                            navigate(`/categories/${categoryName}`)
+                            navigate(`/categories/${categoryName}`, { state: { products } })
                           }
                           className="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-primary"
                           title="عرض التفاصيل"

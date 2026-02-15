@@ -11,6 +11,7 @@ import getAllProducts from '@/services/products'
 import { sell, sellProducts } from '@/services/transaction'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export default function SellProduct() {
 
@@ -30,7 +31,7 @@ export default function SellProduct() {
   const sellProductMutation = useMutation({
       mutationFn: (dataToSend: sell) => sellProducts({ newSell: dataToSend }),
       onSuccess: () => {
-        alert("تم بيع المنتج بنجاح!");
+        toast.success("تم بيع المنتج بنجاح!");
 
         setSelectedProducts([]);
         setDiscount('');
@@ -46,7 +47,7 @@ export default function SellProduct() {
       },
       onError: (error) => {
         console.error(error);
-        alert("حدث خطأ أثناء بيع المنتج");
+        toast.error("حدث خطأ أثناء بيع المنتج");
       }
   });
 
@@ -183,7 +184,7 @@ export default function SellProduct() {
                 e.preventDefault()
 
                 if(selectedRows.length <= 0){
-                  alert('الرجاء التأكد من اختيار زبون')
+                  toast.error('الرجاء التأكد من اختيار زبون')
                   return
                 }
                 

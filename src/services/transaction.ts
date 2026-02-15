@@ -308,3 +308,25 @@ export async function handleWarehouseTransfare(transferData: {
     throw new Error("فشل الاتصال بالسيرفر");
   }
 }
+
+export async function handleAfterSellDiscount({ discount, sellId, customerId }: { discount: number; sellId: string; customerId: string }) {
+  try {
+    const response = await apiClient.post(
+      "/api/transactions/afterSellDiscount",
+      {
+        discount,
+        sellId,
+        customerId,
+      },
+    );
+    return response.data;
+  } catch (err) {
+    console.error("خطأ :", err);
+
+    if (err.response && err.response.data?.message) {
+      throw new Error(err.response.data.message);
+    }
+
+    throw new Error("فشل الاتصال بالسيرفر");
+  }
+}

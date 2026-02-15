@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/services/transaction"; // استورد واجهة Product
 import { X } from "lucide-react";
+import { toast } from "sonner";
 
 type SelectedProduct = Product & { qty: number };
 
@@ -41,7 +42,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
   // تحديث الكمية
   const updateQty = (id: string, qty: number) => {
     if (qty > products.find((p) => p.id === id)?.quantity!) {
-      alert("الكمية المطلوبة غير متوفرة في المخزون");
+      toast.error("الكمية المطلوبة غير متوفرة في المخزون");
       return;
     }
     const newSelected = selectedProducts

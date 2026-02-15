@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Loading from "@/components/ui/custom/Loading"
+import { toast } from "sonner"
 
 export default function ProductDetails() {
   const location = useLocation()
@@ -26,7 +27,7 @@ export default function ProductDetails() {
 
   useEffect(() => {
     if (error) {
-      alert("حدث خطأ أثناء جلب البيانات، سيتم العودة للصفحة السابقة.");
+      toast.error("حدث خطأ أثناء جلب البيانات، سيتم العودة للصفحة السابقة.");
       window.history.back();
     }
   }, [error]);
@@ -43,11 +44,11 @@ export default function ProductDetails() {
   const mutation = useMutation({
     mutationFn: (newData: any) => updateProduct(productState.id, newData),
     onSuccess: () => {
-      alert("✅ تم حفظ التعديلات بنجاح")
+      toast.success("✅ تم حفظ التعديلات بنجاح")
       setIsDirty(false)
     },
     onError: () => {
-      alert("❌ حدث خطأ أثناء الحفظ")
+      toast.error("❌ حدث خطأ أثناء الحفظ")
     },
   })
 
@@ -69,11 +70,11 @@ export default function ProductDetails() {
       queryClient.invalidateQueries({
         queryKey: ['products-table'],
       });
-      alert("تم حذف المنتج");
+      toast.success("تم حذف المنتج");
       navigate('/products')
     },
     onError: () => {
-      alert("فشل الحذف");
+      toast.error("فشل الحذف");
     },
   });
 

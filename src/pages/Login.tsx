@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import userLogin from "@/services/auth";
+import { toast } from "sonner";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -22,7 +23,7 @@ export default function Login() {
 
     } else {
       console.log(res)
-      alert(res?.error || "فشل تسجيل الدخول");
+      toast.error(res?.error || "فشل تسجيل الدخول");
     }
   };
 

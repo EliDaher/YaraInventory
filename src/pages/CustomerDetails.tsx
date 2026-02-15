@@ -24,6 +24,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function CustomerDetails() {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export default function CustomerDetails() {
   const payCustomerDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => payCustomerDebt(dataToSend as any),
     onSuccess: () => {
-      alert("تم إضافة الدفعة بنجاح!");
+      toast.success("تم إضافة الدفعة بنجاح!");
       setAmount(0);
       setNote("");
       setCurrency("");
@@ -58,7 +59,7 @@ export default function CustomerDetails() {
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء إضافة المنتج");
+      toast.error("حدث خطأ أثناء إضافة الدفعة");
     },
   });
 
@@ -80,7 +81,7 @@ export default function CustomerDetails() {
     },
     onError: (error) => {
       console.error(error);
-      alert("حدث خطأ أثناء الإرجاع");
+      toast.error("حدث خطأ أثناء الإرجاع");
     },
   });
 
@@ -236,7 +237,7 @@ export default function CustomerDetails() {
               لا توجد معاملات حالياً.
             </p>
           ) : (
-            <CardContent className="space-y-4 md:space-y-0 grid md:grid-cols-1 gap-4">
+            <CardContent className="space-y-4 md:space-y-0 grid grid-cols-1 gap-4">
               <DataTable
                 title="الدفعات"
                 columns={paymentsColumns}
@@ -315,7 +316,7 @@ export default function CustomerDetails() {
                             console.log(prod);
                             returnMutation.mutate(prod);
                           });
-                          alert("تم تسجيل الإرجاع بنجاح!");
+                          toast.success("تم تسجيل الإرجاع بنجاح!");
                           setOpenReturnId(null);
                           setReturnAmounts({});
                         }}
