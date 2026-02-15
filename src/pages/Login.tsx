@@ -6,48 +6,98 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import userLogin from "@/services/auth";
 import { toast } from "sonner";
+import { Loader2, User, Lock } from "lucide-react";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // هذا يمنع إعادة تحميل الصفحة
+    e.preventDefault();
 
-    const res = await userLogin({ username, password });
+    if (!username || !password) {
+      toast.error("يرجى إدخال اسم المستخدم وكلمة المرور");
+      return;
+    }
 
-    if (res?.message.includes('بنجاح')) {
-      localStorage.setItem("InventoryUser", JSON.stringify(res.user));
-      navigate("/dashboard");
+    try {
+      setLoading(true);
 
-    } else {
-      console.log(res)
-      toast.error(res?.error || "فشل تسجيل الدخول");
+      const res = await userLogin({ username, password });
+
+      if (res?.message?.includes("بنجاح")) {
+        localStorage.setItem("InventoryUser", JSON.stringify(res.user));
+        toast.success("تم تسجيل الدخول بنجاح");
+        navigate("/dashboard");
+      } else {
+        toast.error(res?.error || "فشل تسجيل الدخول");
+      }
+    } catch (error) {
+      toast.error("حدث خطأ غير متوقع");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <Card className="p-8 rounded-xl shadow-xl w-full max-w-md space-y-6">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <Input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Button type="submit" className="w-full">
-            Login
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br  from-white via-gray-200 to-gray-100 px-4">
+      <Card className="w-full max-w-md p-8 rounded-2xl shadow-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/20 space-y-6 transition-all duration-300">
+        {/* Logo / Title */}
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
+            Inventory System
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            تسجيل الدخول إلى حسابك
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleLogin} className="space-y-5">
+          {/* Username */}
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="اسم المستخدم"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="pl-9 h-11 rounded-lg focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="password"
+              placeholder="كلمة المرور"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="pl-9 h-11 rounded-lg focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          {/* Button */}
+          <Button
+            type="submit"
+            disabled={loading}
+            loading={loading}
+            className="w-full"
+            size="lg"
+            variant="accent"
+          >
+            تسجيل الدخول
           </Button>
         </form>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-gray-400 dark:text-gray-500">
+          © {new Date().getFullYear()} Inventory Management System
+        </div>
       </Card>
     </div>
   );
