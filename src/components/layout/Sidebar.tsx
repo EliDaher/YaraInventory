@@ -89,8 +89,8 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-accent">
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-lg text-sidebar-foreground tracking-wide">
-              Inventory
+            <span className="bg-gradient-to-r font-extrabold from-primary-600 to-accent-600 bg-clip-text text-transparent">
+              غرانتكس
             </span>
           </div>
         )}
@@ -109,20 +109,22 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Dashboard Link */}
-      {['admin'].includes(user?.role) && <nav className="px-2 py-3">
-        <Link
-          to="/dashboard"
-          className={cn(
-            "flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors",
-            isDashboardActive
-              ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-inner"
-              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-          )}
-        >
-          <Home className="h-5 w-5 flex-shrink-0 mr-3" />
-          {!isCollapsed && "Dashboard"}
-        </Link>
-      </nav>}
+      {["admin"].includes(user?.role) && (
+        <nav className="px-2 py-3">
+          <Link
+            to="/dashboard"
+            className={cn(
+              "flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors",
+              isDashboardActive
+                ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-inner"
+                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+            )}
+          >
+            <Home className="h-5 w-5 flex-shrink-0 mr-3" />
+            {!isCollapsed && "Dashboard"}
+          </Link>
+        </nav>
+      )}
 
       {/* Other Navigation Groups */}
       <nav className="flex-1 px-2 py-2 overflow-y-auto">

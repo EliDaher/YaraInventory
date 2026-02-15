@@ -33,16 +33,19 @@ export function Header() {
       <div className="container flex h-16 items-center px-4">
         <div className="mr-4 md:flex">
           <div className="mr-6 flex items-center space-x-2">
-            <span className="font-bold md:inline-block">
-              Inventory System / {inventoryUser?.username}
-            </span>
+            <h1 className="text-xl font-extrabold flex items-center gap-2">
+              <span className="bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
+                غرانتكس
+              </span>
+              <span className="text-gray-700 dark:text-gray-300 font-semibold">
+                / {inventoryUser?.username}
+              </span>
+            </h1>
           </div>
         </div>
 
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-
-          </div>
+          <div className="w-full flex-1 md:w-auto md:flex-none"></div>
           <nav className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <Bell className="h-4 w-4" />
@@ -66,16 +69,22 @@ export function Header() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{inventoryUser?.username}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {inventoryUser?.username}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={()=>{
-                  localStorage.removeItem('InventoryUser')
-                  navigate('/login')
-                }}>Log out</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    localStorage.removeItem("InventoryUser");
+                    navigate("/login");
+                  }}
+                >
+                  Log out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>

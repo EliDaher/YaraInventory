@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import userLogin from "@/services/auth";
 import { toast } from "sonner";
-import { Loader2, User, Lock } from "lucide-react";
+import { User, Lock } from "lucide-react";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -48,7 +48,7 @@ export default function Login() {
         {/* Logo / Title */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-extrabold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
-            Inventory System
+            غرانتكس
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             تسجيل الدخول إلى حسابك
