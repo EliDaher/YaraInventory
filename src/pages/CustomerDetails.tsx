@@ -2,6 +2,8 @@ import CustomerPaymentForm from "@/components/Customers/CustomerPaymentForm";
 import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import CustomerPDF, { Operations } from "@/components/pdf/CustomerPDF";
+import PdfDocument from "@/components/pdf/PdfDocument";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -20,8 +22,9 @@ import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import Skeleton from "@mui/material/Skeleton";
 import { Select } from "@radix-ui/react-select";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -114,6 +117,30 @@ export default function CustomerDetails() {
     { label: "التاريخ", key: "date" },
   ];
 
+  const operations: Operations[] = [
+    ...(data?.data?.purchases
+      ?.filter((p) => Array.isArray(p.products) && p.products.length > 0)
+      .map((p) => ({
+        details: p?.products.map((prod) => prod.name).join(", "),
+        date: p?.date,
+        toTheCustoemr: p?.totalPrice ?? 0,
+        fromCustomer: 0,
+      })) ?? []),
+    ...(data?.data?.payments ?? []).map((p) => ({
+      details: p?.note,
+      date: p?.date,
+      toTheCustoemr: 0,
+      fromCustomer: p?.amount,
+    })),
+  ];
+
+  // ترتيب العمليات حسب التاريخ (الأحدث أولًا)
+  operations.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
+  console.log(operations);
+
   return (
     <DashboardLayout>
       <div className="space-y-6" dir="rtl">
@@ -130,12 +157,34 @@ export default function CustomerDetails() {
             <CardTitle>المعلومات الأساسية</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4">
-            <DetailsInputs
-              customer={customer}
-              setCustomer={setCustomer}
-            />
+            <DetailsInputs customer={customer} setCustomer={setCustomer} />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
+              <Button>
+                <PDFDownloadLink
+                  document={
+                    <PdfDocument>
+                      <CustomerPDF
+                        customerName={customer.name}
+                        balance={0}
+                        operations={operations}
+                      />
+                    </PdfDocument>
+                  }
+                  fileName={`فاتورة_${customer.name}_.pdf`}
+                >
+                  {({ loading }) =>
+                    loading ? (
+                      "جاري إنشاء الفاتورة..."
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <FileText className="w-4 h-4 ml-2" />
+                        تصدير الفاتورة PDF
+                      </div>
+                    )
+                  }
+                </PDFDownloadLink>
+              </Button>
               <CustomerPaymentForm
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}

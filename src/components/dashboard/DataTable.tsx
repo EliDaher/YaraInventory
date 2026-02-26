@@ -209,7 +209,7 @@ export function DataTable({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="overflow-x-auto rounded-md border">
-          <Table className="">
+          <Table className="text-center">
             <TableHeader>
               <TableRow>
                 {columns.map((column) => (
