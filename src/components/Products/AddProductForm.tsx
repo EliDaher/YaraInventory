@@ -7,7 +7,7 @@ import { payNewProduct } from "@/services/transaction";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addProductSchema } from "@/schemas/addProduct.schema";
-import { z } from "zod";
+import { object, z } from "zod";
 import SupplierSelect from "./SupplierSelect";
 import {
   Select,
@@ -18,6 +18,8 @@ import {
 } from "../ui/select";
 import WarehouseSelect from "../Warehouses/WarehouseSelect";
 import { toast } from "sonner";
+import { queryKeys } from "@/lib/queryKeys";
+import { useProductsGrouping } from "@/hooks/useProductsGrouping";
 
 type FormValues = z.infer<typeof addProductSchema>;
 
@@ -30,6 +32,16 @@ export default function AddProductForm({
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   row?: any;
 }) {
+  const { groupByCategory } = useProductsGrouping();
+  const groupedProducts = groupByCategory();
+  const categoriesName = Object.keys(groupedProducts).map(c => {
+    return {
+      id: c,
+      name: c
+    }
+  });
+  console.log(categoriesName);
+
   const queryClient = useQueryClient();
   const [openSupplier, setOpenSupplier] = React.useState(false);
 
@@ -80,7 +92,9 @@ export default function AddProductForm({
     onSuccess: () => {
       reset();
       setIsOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["products-table"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.products,
+      });
     },
   });
 
@@ -174,7 +188,11 @@ export default function AddProductForm({
           {...register("code")}
           error={errors.code?.message}
         />
-        <FormInput label="الصنف" {...register("category")} />
+        <FormInput
+          label="الصنف"
+          {...register("category")}
+          options={categoriesName}
+        />
 
         <Controller
           control={control}

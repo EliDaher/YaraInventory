@@ -90,7 +90,6 @@ export default function CustomerDetails() {
 
   const [customer, setCustomer] = useState<any>({});
 
-  // ✅ جلب بيانات الزبون
   const { data, isLoading } = useQuery({
     queryKey: ["customer-details", customerId],
     queryFn: () => getCustomerById(customerId),
@@ -134,12 +133,9 @@ export default function CustomerDetails() {
     })),
   ];
 
-  // ترتيب العمليات حسب التاريخ (الأحدث أولًا)
   operations.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
-
-  console.log(operations);
 
   return (
     <DashboardLayout>

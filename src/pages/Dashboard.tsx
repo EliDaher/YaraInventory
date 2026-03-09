@@ -247,7 +247,7 @@ export default function Dashboard() {
               آخر العمليات المالية والمبيعات
             </h2>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <DataTable
               title="آخر العمليات المالية"
               data={lastPayments}
@@ -257,7 +257,7 @@ export default function Dashboard() {
               isLoading={paymentsLoading}
             />
 
-            <DataTable
+            {/* <DataTable
               title="ابرز العملاء"
               data={lastCustomers.map((customer: any) => ({
                 ...customer,
@@ -272,7 +272,7 @@ export default function Dashboard() {
               defaultPageSize={5}
               pageSizeOptions={[5]}
               isLoading={customerLoading}
-            />
+            /> */}
           </CardContent>
         </Card>
       </div>

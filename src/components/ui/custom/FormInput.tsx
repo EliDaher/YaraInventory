@@ -43,7 +43,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
                   {option.name}
                 </SelectItem>
               ))}
-              <SelectItem value="other">غير ذلك</SelectItem>
+              {/* <SelectItem value="other">غير ذلك</SelectItem> */}
             </SelectContent>
           </Select>
 
