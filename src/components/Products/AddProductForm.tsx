@@ -188,10 +188,13 @@ export default function AddProductForm({
           {...register("code")}
           error={errors.code?.message}
         />
-        <FormInput
-          label="الصنف"
-          {...register("category")}
-          options={categoriesName}
+        
+        <Controller
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <FormInput label="الصنف" {...field} options={categoriesName} />
+          )}
         />
 
         <Controller
