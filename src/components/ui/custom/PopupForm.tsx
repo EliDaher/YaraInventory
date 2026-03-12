@@ -47,7 +47,7 @@ export default function PopupForm({
               exit={{ opacity: 0 }}
             >
               <motion.div
-                className="bg-gradient-to-bl from-background to-background/95 w-full max-w-lg rounded-2xl shadow-xl p-6 relative"
+                className="bg-gradient-to-bl from-primary-50 to-background w-full max-w-lg rounded-2xl shadow-xl p-6 relative"
                 initial={{ scale: 0.9, y: 40, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.9, y: 40, opacity: 0 }}

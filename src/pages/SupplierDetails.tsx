@@ -54,6 +54,8 @@ export default function SupplierDetails() {
     enabled: !!supplierId,
   });
 
+  console.log(data)
+
   // ✅ تحديث الحالة عند وصول البيانات
   useEffect(() => {
     if (data?.data) {
@@ -196,7 +198,7 @@ export default function SupplierDetails() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     paySupplierDebtMutation.mutate({
-                      supplierId: supplierId,
+                      supplierId: supplierId.id,
                       amount:
                         currency == "USD"
                           ? amount
@@ -331,10 +333,10 @@ export default function SupplierDetails() {
               <DataTable
                 title="الدفعات"
                 columns={paymentsColumns}
-                data={data.data.payments}
-                getRowClassName={(row) =>
-                  row.type !== "income" ? "text-red-500" : "text-green-500"
-                }
+                data={[...(data?.data?.payments || [])].sort(
+                  (a, b) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime(),
+                )}
               />
               <DataTable
                 title="عمليات الشراء"
@@ -346,12 +348,14 @@ export default function SupplierDetails() {
                     isOpen={openRowId === row.id.toString()}
                     setIsOpen={() => setOpenRowId(null)}
                     trigger={
-                      <Button onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setOpenRowId(row.id.toString())
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setOpenRowId(row.id.toString());
                           console.log("row id:", openRowId);
-                        }}>
+                        }}
+                      >
                         إرجاع
                       </Button>
                     }
@@ -366,9 +370,7 @@ export default function SupplierDetails() {
                           id="return-quantity"
                           type="number"
                           value={returnAmount}
-                          onChange={(e) =>
-                            setReturnAmount(e.target.value)
-                          }
+                          onChange={(e) => setReturnAmount(e.target.value)}
                         />
                         <p className="text-sm text-gray-500">
                           الكمية الأصلية: {row.quantity}
@@ -397,8 +399,14 @@ export default function SupplierDetails() {
                       />
 
                       <div className="flex justify-end mt-2">
-                        <Button type="submit" className="w-full" disabled={returnMutation.isPending}>
-                          {returnMutation.isPending ? "جاري التأكيد..." : "تأكيد الإرجاع"}
+                        <Button
+                          type="submit"
+                          className="w-full"
+                          disabled={returnMutation.isPending}
+                        >
+                          {returnMutation.isPending
+                            ? "جاري التأكيد..."
+                            : "تأكيد الإرجاع"}
                         </Button>
                       </div>
                     </form>
