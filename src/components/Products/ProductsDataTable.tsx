@@ -3,6 +3,10 @@ import { DataTable } from "../dashboard/DataTable";
 import { Button } from "../ui/button";
 import { Product } from "@/services/transaction";
 import { ProductTableRow } from "@/pages/Products";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import PdfDocument from "../pdf/PdfDocument";
+import { FileText, Loader } from "lucide-react";
+import ProductsPdf from "../pdf/ProductsPDF";
 
 type productDataTableProp = {
   productsData: Product[] | ProductTableRow[];
@@ -33,15 +37,41 @@ const ProductsDataTable = ({ productsData, setEditRow, setOpenForm, setOpenTrans
         isLoading={isLoading}
         title="قائمة المنتجات"
         titleButton={
-          <Button
-            onClick={() => {
-              setEditRow(null);
-              setOpenForm(true);
-            }}
-            className=""
-          >
-            إضافة منتج
-          </Button>
+          <div className="flex gap-2 items-center justify-center">
+            <Button
+              onClick={() => {
+                setEditRow(null);
+                setOpenForm(true);
+              }}
+              className=""
+            >
+              إضافة منتج
+            </Button>
+            <Button variant="ghost" className="border">
+              <PDFDownloadLink
+                document={
+                  <PdfDocument>
+                    <PdfDocument>
+                      <ProductsPdf products={productsData} />
+                    </PdfDocument>
+                  </PdfDocument>
+                }
+                // fileName={`فاتورة_${sell.customerName}_${sell.date}.pdf`}
+              >
+                {({ loading }) =>
+                  loading ? (
+                    <div className="flex items-center justify-center">
+                      <Loader className="w-4 h-4 animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                  )
+                }
+              </PDFDownloadLink>
+            </Button>
+          </div>
         }
         columns={ProductsColumns}
         data={productsData}

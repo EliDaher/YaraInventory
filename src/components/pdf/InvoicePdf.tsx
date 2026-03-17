@@ -1,83 +1,89 @@
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 
 export default function InvoicePdf({ sell }: { sell: any }) {
+  const products = sell?.products || [];
+  const discount = Number(sell?.discount || 0);
+  const totalPrice = Number(sell?.totalPrice || 0);
+
   return (
     <View style={styles.container}>
-      {/* Header */}
       <Text style={styles.header}>غرانتكس</Text>
       <Text style={styles.title}>فاتورة بيع</Text>
 
-      {/* Customer Info */}
       <View style={styles.section}>
         <View style={styles.infoRow}>
-          <Text>:اسم الزبون</Text>
-          <Text>{sell.customerName}</Text>
+          <Text style={styles.label}>:اسم الزبون</Text>
+          <Text style={styles.value}>{sell?.customerName || "-"}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text>:التاريخ</Text>
-          <Text style={styles.ltr}>{sell.date}</Text>
+          <Text style={styles.label}>:التاريخ</Text>
+          <Text style={[styles.value, styles.ltr]}>{sell?.date || "-"}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text>:العملة</Text>
-          <Text style={styles.ltr}>{sell.currency}</Text>
+          <Text style={styles.label}>:العملة</Text>
+          <Text style={[styles.value, styles.ltr]}>
+            {sell?.currency || "-"}
+          </Text>
         </View>
 
         <View style={styles.infoRow}>
-          <Text>:رقم الفاتورة</Text>
-          <Text style={styles.ltr}>{sell.id}</Text>
+          <Text style={styles.label}>:رقم الفاتورة</Text>
+          <Text style={[styles.value, styles.ltr]}>{sell?.id || "-"}</Text>
         </View>
       </View>
 
-      {/* Products Table */}
       <View style={styles.table}>
-        {/* Table Header */}
         <View style={[styles.row, styles.rowHeader]}>
-          <Text style={styles.cellHeader}>المنتج</Text>
-          <Text style={styles.cellHeader}>السعر × الكمية</Text>
-          <Text style={styles.cellHeader}>الإجمالي</Text>
+          <Text style={[styles.cellHeader, styles.productCell]}>المنتج</Text>
+          <Text style={[styles.cellHeader, styles.qtyPriceCell]}>
+            السعر × الكمية
+          </Text>
+          <Text style={[styles.cellHeader, styles.totalCell]}>الإجمالي</Text>
         </View>
 
-        {/* Table Rows */}
-        {sell.products.map((p: any, i: number) => (
-          <View key={i} style={styles.row}>
-            <Text style={styles.cell}>{p.name}</Text>
+        {products.map((p: any, i: number) => {
+          const qty = Number(p?.qty || 0);
+          const sellPrice = Number(p?.sellPrice || 0);
+          const lineTotal = qty * sellPrice;
 
-            <View style={styles.cellRow}>
-              <Text style={styles.ltr}>
-                {p?.sellPrice?.toFixed(2) || "0.00"}
+          return (
+            <View key={i} style={styles.row}>
+              <Text style={[styles.cell, styles.productCell]}>
+                {p?.name || "-"}
               </Text>
-              <Text> × </Text>
-              <Text style={styles.ltr}>{p.qty}</Text>
-            </View>
 
-            <Text style={styles.cell}>
-              {(p.qty * p?.sellPrice)?.toFixed(2) || "0.00"}
-            </Text>
-          </View>
-        ))}
+              <View style={[styles.cellRow, styles.qtyPriceCell]}>
+                <Text style={styles.ltr}>{sellPrice.toFixed(2)}</Text>
+                <Text> × </Text>
+                <Text style={styles.ltr}>{qty}</Text>
+              </View>
+
+              <Text style={[styles.cell, styles.totalCell]}>
+                {lineTotal.toFixed(2)}
+              </Text>
+            </View>
+          );
+        })}
       </View>
 
-      {/* Discount */}
-      {sell?.discount && sell?.discount > 0 && (
+      {discount > 0 && (
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>الحسم:</Text>
-          <Text style={styles.totalAmount}>
-            {sell?.discount?.toFixed(2) || "0.00"}
+          <Text style={[styles.totalAmount, styles.ltr]}>
+            {discount.toFixed(2)}
           </Text>
         </View>
       )}
 
-      {/* Total */}
       <View style={styles.totalContainer}>
         <Text style={styles.totalLabel}>المجموع:</Text>
-        <Text style={styles.totalAmount}>
-          {sell?.totalPrice?.toFixed(2) || "0.00"}
+        <Text style={[styles.totalAmount, styles.ltr]}>
+          {totalPrice.toFixed(2)}
         </Text>
       </View>
 
-      {/* Footer */}
       <Text style={styles.footer}>شكراً لتعاملكم معنا</Text>
     </View>
   );
@@ -89,7 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     padding: 20,
     backgroundColor: "#fff",
-    direction: "rtl",
   },
 
   header: {
@@ -98,91 +103,112 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
   },
+
   title: {
     fontSize: 18,
     textAlign: "center",
     marginBottom: 20,
     color: "#333",
   },
+
   section: {
     marginBottom: 15,
-    textAlign: "right",
   },
-  infoText: {
+
+  infoRow: {
+    flexDirection: "row-reverse",
+    justifyContent: "flex-start",
+    marginBottom: 4,
+  },
+
+  label: {
     fontSize: 12,
-    marginBottom: 2,
+    marginLeft: 4,
   },
+
+  value: {
+    fontSize: 12,
+  },
+
   table: {
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 4,
-    overflow: "hidden",
     marginBottom: 15,
   },
+
   row: {
     flexDirection: "row-reverse",
-    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderColor: "#eee",
   },
+
   rowHeader: {
     backgroundColor: "#f5f5f5",
     borderBottomWidth: 2,
     borderColor: "#ccc",
   },
+
   cell: {
     fontSize: 12,
-    width: "33%",
     textAlign: "right",
   },
+
   cellHeader: {
     fontSize: 13,
     fontWeight: "bold",
-    width: "33%",
     textAlign: "right",
   },
+
+  productCell: {
+    width: "40%",
+  },
+
+  qtyPriceCell: {
+    width: "30%",
+  },
+
+  totalCell: {
+    width: "30%",
+  },
+
+  cellRow: {
+    flexDirection: "row-reverse",
+    justifyContent: "flex-start",
+  },
+
   totalContainer: {
     flexDirection: "row-reverse",
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     alignItems: "center",
-    gap: 4,
     marginTop: 10,
     borderTopWidth: 2,
     borderColor: "#ccc",
     paddingTop: 6,
   },
+
   totalLabel: {
     fontSize: 14,
     fontWeight: "bold",
-    marginRight: 8,
+    marginLeft: 6,
   },
+
   totalAmount: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#000",
   },
+
   footer: {
     textAlign: "center",
     fontSize: 13,
     color: "#555",
     marginTop: 20,
   },
-  infoRow: {
-    flexDirection: "row-reverse",
-    justifyContent: "flex-start",
-    gap: 4,
-    marginBottom: 4,
-  },
 
   ltr: {
     direction: "ltr",
-  },
-
-  cellRow: {
-    flexDirection: "row-reverse",
-    width: "33%",
-    justifyContent: "flex-start",
   },
 });

@@ -307,15 +307,9 @@ const transfersColumns = [
           <CardHeader>
             <CardTitle>جداول البيانات</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-row flex-wrap gap-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <DataTable
-              className="w-full md:w-[48%]"
-              title="عمليات الشراء"
-              data={data ? Object.values(data.transfers) : []}
-              columns={transfersColumns}
-            />
-            <DataTable
-              className="w-full md:w-[48%]"
+              className="w-full"
               title="عمليات الشراء"
               data={data ? Object.values(data.purchases) : []}
               columns={purchasesColumns}
@@ -326,7 +320,7 @@ const transfersColumns = [
               }}
             />
             <DataTable
-              className="w-full md:w-[48%]"
+              className="w-full"
               title="عمليات البيع"
               data={data ? Object.values(data.sells) : []}
               columns={salesColumns}
@@ -335,6 +329,12 @@ const transfersColumns = [
                   state: { id: row.customerId },
                 });
               }}
+            />
+            <DataTable
+              className="w-full md:col-span-2"
+              title="عمليات النقل"
+              data={data ? Object.values(data.transfers) : []}
+              columns={transfersColumns}
             />
           </CardContent>
         </Card>
