@@ -52,7 +52,8 @@ const ProductsDataTable = ({ productsData, setEditRow, setOpenForm, setOpenTrans
                 document={
                   <PdfDocument>
                     <PdfDocument>
-                      <ProductsPdf products={productsData} />
+                      {/* <ProductsPdf products={productsData} /> */}
+                      <div></div>
                     </PdfDocument>
                   </PdfDocument>
                 }
