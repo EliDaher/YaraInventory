@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "../dashboard/DataTable";
 import { Button } from "../ui/button";
@@ -14,113 +15,136 @@ type productDataTableProp = {
   setOpenForm: any;
   setProductRow: any;
   setOpenTransfare: any;
-  isLoading?: boolean
+  isLoading?: boolean;
 };
 
-const ProductsDataTable = ({ productsData, setEditRow, setOpenForm, setOpenTransfare, setProductRow, isLoading }: productDataTableProp) => {
+const ProductsDataTable = ({
+  productsData,
+  setEditRow,
+  setOpenForm,
+  setOpenTransfare,
+  setProductRow,
+  isLoading,
+}: productDataTableProp) => {
   const navigate = useNavigate();
-  const ProductsColumns = [
-    { key: "id", label: "المعرف", sortable: true, hidden: true },
-    { key: "code", label: "الرمز", sortable: true },
-    { key: "name", label: "الاسم", sortable: true },
-    { key: "quantity", label: "الكمية", sortable: true },
-    { key: "warehouse", label: "المخزن", sortable: true },
-    { key: "payPrice", label: "سعر الشراء", sortable: true, onlyAdmin: true },
-    { key: "sellPrice", label: "سعر المبيع", sortable: true },
-    { key: "category", label: "الصنف", sortable: true },
-    { key: "unit", label: "الواحدة", sortable: true },
-  ];
+  const [showPdfLink, setShowPdfLink] = useState(false);
+
+  const ProductsColumns = useMemo(
+    () => [
+      { key: "id", label: "المعرف", sortable: true, hidden: true },
+      { key: "code", label: "الرمز", sortable: true },
+      { key: "name", label: "الاسم", sortable: true },
+      { key: "quantity", label: "الكمية", sortable: true },
+      { key: "warehouse", label: "المخزن", sortable: true },
+      { key: "payPrice", label: "سعر الشراء", sortable: true, onlyAdmin: true },
+      { key: "sellPrice", label: "سعر المبيع", sortable: true },
+      { key: "category", label: "الصنف", sortable: true },
+      { key: "unit", label: "الواحدة", sortable: true },
+    ],
+    [],
+  );
+
+  const pdfDocument = useMemo(() => {
+    if (!showPdfLink) return null;
+
+    return (
+      <PdfDocument>
+        <ProductsPdf products={productsData} />
+      </PdfDocument>
+    );
+  }, [showPdfLink, productsData]);
 
   return (
-    <>
-      <DataTable
-        isLoading={isLoading}
-        title="قائمة المنتجات"
-        titleButton={
-          <div className="flex gap-2 items-center justify-center">
+    <DataTable
+      isLoading={isLoading}
+      title="قائمة المنتجات"
+      titleButton={
+        <div className="flex gap-2 items-center justify-center">
+          <Button
+            onClick={() => {
+              setEditRow(null);
+              setOpenForm(true);
+            }}
+          >
+            إضافة منتج
+          </Button>
+
+          {!showPdfLink ? (
             <Button
-              onClick={() => {
-                setEditRow(null);
-                setOpenForm(true);
-              }}
-              className=""
+              variant="ghost"
+              className="border"
+              onClick={() => setShowPdfLink(true)}
             >
-              إضافة منتج
+              <FileText className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" className="border">
+          ) : (
+            <Button variant="ghost" className="border p-0">
               <PDFDownloadLink
-                document={
-                  <PdfDocument>
-                    <PdfDocument>
-                      {/* <ProductsPdf products={productsData} /> */}
-                      <div></div>
-                    </PdfDocument>
-                  </PdfDocument>
-                }
-                // fileName={`فاتورة_${sell.customerName}_${sell.date}.pdf`}
+                document={pdfDocument!}
+                fileName="تقرير_المنتجات.pdf"
               >
                 {({ loading }) =>
                   loading ? (
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center px-3 py-2">
                       <Loader className="w-4 h-4 animate-spin" />
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center px-3 py-2">
                       <FileText className="w-4 h-4" />
                     </div>
                   )
                 }
               </PDFDownloadLink>
             </Button>
-          </div>
-        }
-        columns={ProductsColumns}
-        data={productsData}
-        getRowClassName={(row) =>
-          row.quantity === 0
-            ? "bg-destructive/20 hover:bg-destructive/40"
-            : row.quantity < 5
-              ? "bg-yellow-500/20 hover:bg-yellow-500/40"
-              : ""
-        }
-        renderRowActions={(row) => (
-          <div className="flex gap-1">
-            <Button
-              variant="default"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditRow(row);
-                setOpenForm(true);
-              }}
-            >
-              شراء
-            </Button>
+          )}
+        </div>
+      }
+      columns={ProductsColumns}
+      data={productsData}
+      getRowClassName={(row) =>
+        row.quantity === 0
+          ? "bg-destructive/20 hover:bg-destructive/40"
+          : row.quantity < 5
+            ? "bg-yellow-500/20 hover:bg-yellow-500/40"
+            : ""
+      }
+      renderRowActions={(row) => (
+        <div className="flex gap-1">
+          <Button
+            variant="default"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditRow(row);
+              setOpenForm(true);
+            }}
+          >
+            شراء
+          </Button>
 
-            <Button
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate("/productDetails", { state: row });
-              }}
-            >
-              التفاصيل
-            </Button>
+          <Button
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate("/productDetails", { state: row });
+            }}
+          >
+            التفاصيل
+          </Button>
 
-            <Button
-              variant="secondary"
-              onClick={(e) => {
-                e.stopPropagation();
-                setProductRow(row);
-                setOpenTransfare(true);
-              }}
-            >
-              نقل
-            </Button>
-          </div>
-        )}
-      />
-    </>
+          <Button
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              setProductRow(row);
+              setOpenTransfare(true);
+            }}
+          >
+            نقل
+          </Button>
+        </div>
+      )}
+    />
   );
 };
 
-export default ProductsDataTable
+export default ProductsDataTable;

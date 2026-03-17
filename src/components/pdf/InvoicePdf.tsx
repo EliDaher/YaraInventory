@@ -203,9 +203,9 @@ const styles = StyleSheet.create({
 
   footer: {
     textAlign: "center",
-    fontSize: 13,
-    color: "#555",
-    marginTop: 20,
+    fontSize: 11,
+    color: "#666",
+    marginTop: 18,
   },
 
   ltr: {
