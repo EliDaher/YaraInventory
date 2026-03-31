@@ -202,31 +202,27 @@ export async function paySupplierDebt(dataToSend: {
 }
 
 export async function handleCustomerReturn(newReturn: {
-  productCode: string;
   customerId: string;
-  warehouse: string;
-  qty: number;
-  returnValue: number;
   referenceId: string;
   returnType: "debt" | "cash" | "part";
   partValue: number;
-  productId: string;
   reason: string;
+  items?: {
+    productCode: string;
+    warehouse: string;
+    qty: number;
+    returnValue: number;
+    productId: string;
+  }[];
+  productCode?: string;
+  warehouse?: string;
+  qty?: number;
+  returnValue?: number;
+  productId?: string;
 }) {
   try {
     const response = await apiClient.post("/api/transactions/CustomerReturn", {
-      newReturn: {
-        productCode: newReturn.productCode,
-        customerId: newReturn.customerId,
-        warehouse: newReturn.warehouse,
-        qty: newReturn.qty,
-        returnValue: newReturn.returnValue,
-        referenceId: newReturn.referenceId,
-        productId: newReturn.productId,
-        returnType: newReturn.returnType,
-        partValue: newReturn.partValue,
-        reason: newReturn.reason,
-      },
+      newReturn,
     });
     return response.data;
   } catch (err) {

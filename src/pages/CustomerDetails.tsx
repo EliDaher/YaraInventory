@@ -68,19 +68,27 @@ export default function CustomerDetails() {
 
   const returnMutation = useMutation({
     mutationFn: (dataToSend: {
-      productCode: string;
       customerId: string;
-      warehouse: string;
-      qty: number;
-      returnValue: number;
       referenceId: string;
       returnType: "cash" | "debt" | "part";
       partValue: number;
-      productId: string;
       reason: string;
+      items: {
+        productId: string;
+        productCode: string;
+        warehouse: string;
+        qty: number;
+        returnValue: number;
+      }[];
     }) => handleCustomerReturn(dataToSend),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-details"] });
+      toast.success("Return saved successfully");
+      setOpenReturnId(null);
+      setReturnAmounts({});
+      setReason("");
+      setPartValue(0);
+      setIsDebt("cash");
     },
     onError: (error) => {
       console.error(error);
@@ -346,24 +354,40 @@ export default function CustomerDetails() {
                             .map((p) => ({
                               productId: p.id,
                               productCode: p.code,
-                              customerId: row.customerId,
                               warehouse: p.warehouse,
-                              qty: -Number(returnAmounts[p.id]),
+                              qty: Number(returnAmounts[p.id]),
                               returnValue:
                                 Number(returnAmounts[p.id]) * p.sellPrice,
-                              referenceId: row.id,
-                              partValue: partValue,
-                              returnType: isDebt,
-                              reason: reason,
                             }));
 
-                          productsToReturn.forEach((prod) => {
-                            console.log(prod);
-                            returnMutation.mutate(prod);
+                          if (!productsToReturn.length) {
+                            toast.error("Please enter a return quantity for at least one item");
+                            return;
+                          }
+                          const totalReturnValue = productsToReturn.reduce(
+                            (sum, p) => sum + Number(p.returnValue || 0),
+                            0,
+                          );
+
+                          if (isDebt === "part") {
+                            if (partValue <= 0) {
+                              toast.error("Please enter a valid partial amount");
+                              return;
+                            }
+                            if (partValue > totalReturnValue) {
+                              toast.error("Partial amount cannot exceed total return value");
+                              return;
+                            }
+                          }
+
+                          returnMutation.mutate({
+                            customerId: row.customerId,
+                            referenceId: row.id,
+                            returnType: isDebt,
+                            partValue,
+                            reason,
+                            items: productsToReturn,
                           });
-                          toast.success("تم تسجيل الإرجاع بنجاح!");
-                          setOpenReturnId(null);
-                          setReturnAmounts({});
                         }}
                       >
                         <div className="max-h-96 overflow-y-auto mt-4 border-2 rounded-md ">
