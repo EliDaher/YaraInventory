@@ -123,6 +123,7 @@ export default function SupplierDetails() {
     { label: "اسم المادة", key: "name" },
     { label: "الكمية", key: "quantity" },
     { label: "المستودع", key: "warehouse" },
+    { label: "كلفة النقل", key: "transferCost" },
     { label: "السعر النهائي", key: "totalPrice" },
     { label: "التاريخ", key: "date" },
   ];
@@ -341,7 +342,10 @@ export default function SupplierDetails() {
               <DataTable
                 title="عمليات الشراء"
                 columns={purchasesColumns}
-                data={data.data.purchases}
+                data={(data?.data?.purchases || []).map((purchase: any) => ({
+                  ...purchase,
+                  transferCost: Number(purchase.transferCost || 0),
+                }))}
                 renderRowActions={(row) => (
                   <PopupForm
                     title={`إرجاع منتج: ${row.code} - ${row.name || ""}`}
@@ -420,3 +424,4 @@ export default function SupplierDetails() {
     </DashboardLayout>
   );
 }
+

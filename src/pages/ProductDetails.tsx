@@ -102,6 +102,7 @@ const transfersColumns = [
   const purchasesColumns = [
     { key: "id", label: "الرمز", sortable: true, hidden: true },
     { key: "totalPrice", label: "اجمالي السعر", sortable: true },
+    { key: "transferCost", label: "كلفة النقل", sortable: true },
     { key: "supplierName", label: "اسم المورد", sortable: true },
     { key: "supplierId", label: "اسم المورد", sortable: true, hidden: true },
     { key: "quantity", label: "الكمية", sortable: true },
@@ -121,7 +122,7 @@ const transfersColumns = [
     product: {
       quantity: number;
     };
-    purchases: { quantity: number; totalPrice: number }[];
+    purchases: { quantity: number; totalPrice: number; transferCost?: number }[];
     sells: {
       quantity: number;
       totalPrice: number;
@@ -311,7 +312,10 @@ const transfersColumns = [
             <DataTable
               className="w-full"
               title="عمليات الشراء"
-              data={data ? Object.values(data.purchases) : []}
+              data={data?.purchases ? Object.values(data.purchases).map((purchase: any) => ({
+                ...purchase,
+                transferCost: Number(purchase.transferCost || 0),
+              })) : []}
               columns={purchasesColumns}
               onRowClick={(row) => {
                 navigate("/SupplierDetails", {
@@ -341,3 +345,4 @@ const transfersColumns = [
       </DashboardLayout>
     );
 }
+

@@ -7,7 +7,7 @@ import { payNewProduct } from "@/services/transaction";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addProductSchema } from "@/schemas/addProduct.schema";
-import { object, z } from "zod";
+import { z } from "zod";
 import SupplierSelect from "./SupplierSelect";
 import {
   Select,
@@ -59,6 +59,7 @@ export default function AddProductForm({
       isDebt: "cash",
       currency: "USD",
       exchangeRate: 1,
+      transferCost: 0,
     },
   });
 
@@ -79,6 +80,7 @@ export default function AddProductForm({
       unit: row.unit,
       quantity: row.quantity ?? 1,
       supplierId: row.supplierId ?? "",
+      transferCost: row.transferCost ?? 0,
       isDebt: "cash",
       currency: "USD",
       exchangeRate: 1,
@@ -101,6 +103,7 @@ export default function AddProductForm({
   // ✅ نفس منطقك التجاري السابق بالكامل
   const onSubmit = (values: FormValues) => {
     const total = values.quantity * values.payPrice;
+    const transferCost = Number(values.transferCost ?? 0);
 
 
     if (values.isDebt !== "debt" && !values.currency) {
@@ -124,6 +127,11 @@ export default function AddProductForm({
 
     if (values.isDebt === "part" && (values.partValue ?? 0) >= total) {
       toast.error("قيمة الدفعة الجزئية لا يمكن أن تكون أكبر أو تساوي المبلغ الكلي");
+      return;
+    }
+
+    if (transferCost < 0) {
+      toast.error("كلفة النقل يحبذ أن تكون صفر أو رقم إيجابي");
       return;
     }
 
@@ -161,6 +169,7 @@ export default function AddProductForm({
         totalPrice: total,
         paymentStatus: "pending",
         remainingDebt,
+        transferCost,
       },
     });
     queryClient.invalidateQueries({ queryKey: ["products-table"] });
@@ -217,6 +226,12 @@ export default function AddProductForm({
         />
         <FormInput label="الكمية" type="number" {...register("quantity")} />
         <FormInput label="الواحدة" {...register("unit")} />
+        <FormInput
+          label="تكلفة النقل (اختياري)"
+          type="number"
+          {...register("transferCost")}
+          error={errors.transferCost?.message}
+        />
 
         {/* نوع الدفع */}
         <div className="md:col-span-2 grid grid-cols-3 gap-2">
@@ -293,3 +308,4 @@ export default function AddProductForm({
     </PopupForm>
   );
 }
+
