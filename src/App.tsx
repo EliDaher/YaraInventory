@@ -8,6 +8,7 @@ import { routesConfig } from "./RoutesConfig";
 import { WarehouseProvider } from "./contexts/WarehouseContexts";
 import { ProductProvider } from "./contexts/ProductContext";
 import Loading from "./components/ui/custom/Loading";
+import { AutoLogoutManager } from "./components/auth/AutoLogoutManager";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster richColors position="bottom-right" duration={2500} />
             <HashRouter>
+              <AutoLogoutManager />
               <Suspense fallback={<Loading />}>
                 <Routes>
                   {routesConfig.map((route, index) => (

@@ -11,12 +11,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { logoutSession } from "@/lib/session";
 
 export interface inventoryUser {
-  id: string,
-  password: string,
-  role: string,
-  username: string,
+  role?: string;
+  username?: string;
+  permissions?: string[];
 }
 
 export function Header() {
@@ -24,8 +24,13 @@ export function Header() {
   const [inventoryUser, setInventoryUser] = useState<inventoryUser>()
 
   useEffect(()=>{
-    const temUser = JSON.parse(localStorage.getItem("InventoryUser") || "null");
-    setInventoryUser(temUser)
+    try {
+      const temUser = JSON.parse(localStorage.getItem("InventoryUser") || "null");
+      setInventoryUser(temUser)
+    } catch (error) {
+      console.error("Failed to parse InventoryUser:", error);
+      setInventoryUser(undefined);
+    }
   },[])
 
   return (
@@ -79,8 +84,7 @@ export function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    localStorage.removeItem("InventoryUser");
-                    navigate("/login");
+                    logoutSession({ navigate });
                   }}
                 >
                   Log out

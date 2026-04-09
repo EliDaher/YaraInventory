@@ -5,8 +5,7 @@ export default async function userLogin({username, password}) {
     try {
       const response = await apiClient.post("/api/auth/login", {
         username: username,
-        password: password,
-        role: 'admin'
+        password: password
       });
 
       return response.data

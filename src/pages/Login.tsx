@@ -1,12 +1,40 @@
 // src/pages/Login.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import userLogin from "@/services/auth";
 import { toast } from "sonner";
 import { User, Lock } from "lucide-react";
+import { markSessionActivity } from "@/lib/session";
+
+const getLandingRoute = (user: { role?: string; permissions?: string[] }) => {
+  if (user?.role === "admin") {
+    return "/dashboard";
+  }
+
+  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
+
+  const permissionRouteMap: { permission: string; route: string }[] = [
+    { permission: "dashboard", route: "/dashboard" },
+    { permission: "products", route: "/Products" },
+    { permission: "sell_product", route: "/sellProduct" },
+    { permission: "suppliers", route: "/suppliers" },
+    { permission: "customers", route: "/customers" },
+    { permission: "financial_statement", route: "/financialStatement" },
+    { permission: "warehouses", route: "/warehouses" },
+    { permission: "categories", route: "/categories" },
+    { permission: "users", route: "/users" },
+  ];
+
+  const firstAllowedRoute = permissionRouteMap.find((entry) =>
+    permissions.includes(entry.permission),
+  );
+
+  return firstAllowedRoute?.route || "/unauthorized";
+};
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -14,6 +42,17 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const reason = params.get("reason");
+
+    if (reason === "session_expired") {
+      toast.error("Session expired, please log in again.");
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.pathname, location.search, navigate]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,8 +69,9 @@ export default function Login() {
 
       if (res?.message?.includes("بنجاح")) {
         localStorage.setItem("InventoryUser", JSON.stringify(res.user));
+        markSessionActivity(Date.now(), undefined, true);
         toast.success("تم تسجيل الدخول بنجاح");
-        navigate("/dashboard");
+        navigate(getLandingRoute(res.user));
       } else {
         toast.error(res?.error || "فشل تسجيل الدخول");
       }

@@ -9,10 +9,10 @@ const getBaseURL = () => {
     //const inventoryUser = storedUser ? JSON.parse(storedUser) : null;
 
     return (
-      // "http://localhost:5000"
+      "http://localhost:5000"
       // inventoryUser?.serverURL ||
       // import.meta.env.VITE_API_BASE_URL ||
-      "https://yaraserver.onrender.com"
+      // "https://yaraserver.onrender.com"
     );
   } catch (error) {
     console.error("Failed to parse InventoryUser:", error);
@@ -39,6 +39,17 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem("auth_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    try {
+      const userStr = localStorage.getItem("InventoryUser");
+      const inventoryUser = userStr ? JSON.parse(userStr) : null;
+      const executer = inventoryUser?.username;
+      if (executer) {
+        config.headers["x-executer"] = executer;
+      }
+    } catch (error) {
+      console.error("Failed to parse InventoryUser for x-executer:", error);
     }
 
     // 🔥 تحديث baseURL في كل طلب (لو تغير المستخدم)
