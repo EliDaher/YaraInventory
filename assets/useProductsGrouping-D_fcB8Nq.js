@@ -1,1 +1,0 @@
-import{h as n}from"./index-ByT_B_Bp.js";function g(){const o=n();return{groupByCategory:()=>{const e=o.getQueryData(["products-table"]);return e?e.reduce((r,u)=>{const t=u.category.trim()||"بدون تصنيف";return r[t]||(r[t]=[]),r[t].push(u),r},{}):{}}}}export{g as u};
