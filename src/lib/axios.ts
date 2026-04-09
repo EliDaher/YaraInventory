@@ -9,10 +9,10 @@ const getBaseURL = () => {
     //const inventoryUser = storedUser ? JSON.parse(storedUser) : null;
 
     return (
-      "http://localhost:5000"
+      // "http://localhost:5000"
       // inventoryUser?.serverURL ||
       // import.meta.env.VITE_API_BASE_URL ||
-      // "https://yaraserver.onrender.com"
+      "https://yaraserver.onrender.com"
     );
   } catch (error) {
     console.error("Failed to parse InventoryUser:", error);
