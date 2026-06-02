@@ -63,7 +63,7 @@ export interface purchase {
   exchangeRate: number;
   amount_base: number;
   remainingDebt: number;
-  date: string;
+  date?: string;
 }
 
 export async function payNewProduct({

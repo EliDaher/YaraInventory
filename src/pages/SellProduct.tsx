@@ -23,6 +23,7 @@ export default function SellProduct() {
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [isDebt, setIsDebt] = useState<'cash' | 'part' | 'debt'>('cash');
   const [partValue, setPartValue] = useState('');
+  const [operationDate, setOperationDate] = useState('');
   const queryClient = useQueryClient();
   const [currency, setCurrency] = useState('')
   const [exchangeRate, setExchangeRate] = useState(1)
@@ -40,6 +41,7 @@ export default function SellProduct() {
         setSelectedRows([]);
         setIsDebt('cash');
         setPartValue('');
+        setOperationDate('');
 
         queryClient.invalidateQueries({
           queryKey: ['sells-table'],
@@ -141,6 +143,14 @@ export default function SellProduct() {
               onChange={e => {}}
             />
 
+            <FormInput
+              label="تاريخ العملية (اختياري)"
+              id="operation-date"
+              type="date"
+              value={operationDate}
+              onChange={(e) => setOperationDate(e.target.value)}
+            />
+
             <div className='grid grid-cols-3 gap-2 md:col-span-2'>
             
               <Button onClick={()=>{setIsDebt('cash')}} className='col-span-1' variant={isDebt === 'cash' ? 'default' : 'outline'} type="button">نقدا</Button>
@@ -197,7 +207,8 @@ export default function SellProduct() {
                   currency: currency,
                   exchangeRate: exchangeRate,
                   amount_base: finalAmount * exchangeRate,
-                  partValue: Number(partValue)
+                  partValue: Number(partValue),
+                  ...(operationDate ? { date: operationDate } : {}),
                 })
 
               }}

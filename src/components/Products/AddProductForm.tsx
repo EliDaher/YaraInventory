@@ -60,6 +60,7 @@ export default function AddProductForm({
       currency: "USD",
       exchangeRate: 1,
       transferCost: 0,
+      date: "",
     },
   });
 
@@ -84,6 +85,7 @@ export default function AddProductForm({
       isDebt: "cash",
       currency: "USD",
       exchangeRate: 1,
+      date: "",
     });
   }, [row, reset]);
 
@@ -170,6 +172,7 @@ export default function AddProductForm({
         paymentStatus: "pending",
         remainingDebt,
         transferCost,
+        ...(values.date ? { date: values.date } : {}),
       },
     });
     queryClient.invalidateQueries({ queryKey: ["products-table"] });
@@ -231,6 +234,12 @@ export default function AddProductForm({
           type="number"
           {...register("transferCost")}
           error={errors.transferCost?.message}
+        />
+        <FormInput
+          label="تاريخ العملية (اختياري)"
+          type="date"
+          {...register("date")}
+          error={errors.date?.message}
         />
 
         {/* نوع الدفع */}
