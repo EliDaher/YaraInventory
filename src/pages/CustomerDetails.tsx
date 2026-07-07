@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import CustomerPDF, { Operations } from "@/components/pdf/CustomerPDF";
 import PdfDocument from "@/components/pdf/PdfDocument";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
+import WarehouseSelect from "@/components/Warehouses/WarehouseSelect";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import FormInput from "@/components/ui/custom/FormInput";
@@ -42,11 +43,23 @@ export default function CustomerDetails() {
   const [returnAmounts, setReturnAmounts] = useState<{
     [productId: string]: string;
   }>({});
+  const [returnWarehouses, setReturnWarehouses] = useState<{
+    [productId: string]: string;
+  }>({});
   const [isDebt, setIsDebt] = useState<"cash" | "part" | "debt">("cash");
   const [partValue, setPartValue] = useState(0);
   const [reason, setReason] = useState("");
   const [currency, setCurrency] = useState("");
   const [exchangeRate, setExchangeRate] = useState(1);
+
+  const resetReturnForm = () => {
+    setOpenReturnId(null);
+    setReturnAmounts({});
+    setReturnWarehouses({});
+    setReason("");
+    setPartValue(0);
+    setIsDebt("cash");
+  };
 
   const payCustomerDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => payCustomerDebt(dataToSend as any),
@@ -77,6 +90,7 @@ export default function CustomerDetails() {
         productId: string;
         productCode: string;
         warehouse: string;
+        returnWarehouse?: string;
         qty: number;
         returnValue: number;
       }[];
@@ -84,11 +98,7 @@ export default function CustomerDetails() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-details"] });
       toast.success("Return saved successfully");
-      setOpenReturnId(null);
-      setReturnAmounts({});
-      setReason("");
-      setPartValue(0);
-      setIsDebt("cash");
+      resetReturnForm();
     },
     onError: (error) => {
       console.error(error);
@@ -331,7 +341,14 @@ export default function CustomerDetails() {
                     <PopupForm
                       title={`إرجاع منتجات الفاتورة`}
                       isOpen={openReturnId === row.id}
-                      setIsOpen={() => setOpenReturnId(null)}
+                      setIsOpen={(value) => {
+                        if (value) {
+                          setOpenReturnId(row.id);
+                          return;
+                        }
+
+                        resetReturnForm();
+                      }}
                       trigger={
                         <Button
                           onClick={(e) => {
@@ -355,6 +372,8 @@ export default function CustomerDetails() {
                               productId: p.id,
                               productCode: p.code,
                               warehouse: p.warehouse,
+                              returnWarehouse:
+                                returnWarehouses[p.id] || p.warehouse,
                               qty: Number(returnAmounts[p.id]),
                               returnValue:
                                 Number(returnAmounts[p.id]) * p.sellPrice,
@@ -400,6 +419,20 @@ export default function CustomerDetails() {
                               <p>الكمية الأصلية: {product.qty}</p>
                               <p>سعر الوحدة: {product.sellPrice}</p>
                               <p>المستودع: {product.warehouse}</p>
+                              <WarehouseSelect
+                                label="مستودع الإرجاع"
+                                selectOnly
+                                value={
+                                  returnWarehouses[product.id] ||
+                                  product.warehouse
+                                }
+                                onChange={(warehouse) =>
+                                  setReturnWarehouses((prev) => ({
+                                    ...prev,
+                                    [product.id]: warehouse,
+                                  }))
+                                }
+                              />
                               <FormInput
                                 id={`return-${product.id}`}
                                 label="كمية الإرجاع"

@@ -28,6 +28,7 @@ export interface returnData {
   supplierId?: string;
   customerId?: string;
   warehouse: string;
+  returnWarehouse?: string;
   qty: number;
   returnValue: number;
   referenceId: string;
@@ -210,6 +211,7 @@ export async function handleCustomerReturn(newReturn: {
   items?: {
     productCode: string;
     warehouse: string;
+    returnWarehouse?: string;
     qty: number;
     returnValue: number;
     productId: string;
