@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import PaymentTypeSelector from "@/components/sellProduct/PaymentTypeSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import ConfirmForm from "@/components/ui/custom/ConfirmForm";
 import FormInput from "@/components/ui/custom/FormInput";
 import PopupForm from "@/components/ui/custom/PopupForm";
 import {
@@ -14,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getSupplierById } from "@/services/supplier";
+import { deletePayment } from "@/services/payments";
 import {
   handleSupplierReturn,
   paySupplierDebt,
@@ -22,7 +24,7 @@ import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
 import Skeleton from "@mui/material/Skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -79,6 +81,18 @@ export default function SupplierDetails() {
     onError: (error) => {
       console.error(error);
       toast.error("حدث خطأ أثناء إضافة الدفعة");
+    },
+  });
+
+  const deletePaymentMutation = useMutation({
+    mutationFn: deletePayment,
+    onSuccess: () => {
+      toast.success("تم حذف الدفعة بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["supplier-details", supplierId] });
+      queryClient.invalidateQueries({ queryKey: ["payments-table"] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || "حدث خطأ أثناء حذف الدفعة");
     },
   });
 
@@ -337,6 +351,25 @@ export default function SupplierDetails() {
                 data={[...(data?.data?.payments || [])].sort(
                   (a, b) =>
                     new Date(b.date).getTime() - new Date(a.date).getTime(),
+                )}
+                renderRowActions={(row) => (
+                  <ConfirmForm
+                    title="حذف الدفعة"
+                    description="هل أنت متأكد؟ سيتم حذف الدفعة وعكس تأثيرها على رصيد المورد."
+                    confirmText="نعم، احذف الدفعة"
+                    loading={deletePaymentMutation.isPending}
+                    onConfirm={() => deletePaymentMutation.mutate(row.id)}
+                    trigger={
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        disabled={deletePaymentMutation.isPending || !row.id}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
                 )}
               />
               <DataTable

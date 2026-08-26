@@ -2,12 +2,13 @@ import { DataTable } from "@/components/dashboard/DataTable";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import getAllPayments from "@/services/payments";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   TrendingUp,
   Wallet,
   ArrowDownCircle,
   CalendarIcon,
+  Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
@@ -31,14 +32,29 @@ import { Calendar } from "@/components/ui/calendar";
 import AddBalanceForm from "@/components/FinancialStatement/AddBalanceForm";
 import TakeBalanceForm from "@/components/FinancialStatement/TakeBalanceForm";
 import Loading from "@/components/ui/custom/Loading";
+import ConfirmForm from "@/components/ui/custom/ConfirmForm";
+import { deletePayment } from "@/services/payments";
+import { toast } from "sonner";
 
 export default function FinancialStatement() {
   const [isOpenPay, setIsOpenPay] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const queryClient = useQueryClient();
   const { data: payments, isLoading } = useQuery<Payment[]>({
     queryKey: ["payments-table"],
     queryFn: () => getAllPayments(),
+  });
+
+  const deletePaymentMutation = useMutation({
+    mutationFn: deletePayment,
+    onSuccess: () => {
+      toast.success("تم حذف الدفعة بنجاح");
+      queryClient.invalidateQueries({ queryKey: ["payments-table"] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.error || "حدث خطأ أثناء حذف الدفعة");
+    },
   });
 
   // ---------------- فلاتر ----------------
@@ -210,6 +226,24 @@ export default function FinancialStatement() {
                 title=""
                 columns={paymentsColumns}
                 data={filteredPayments ? [...filteredPayments].reverse() : []}
+                renderRowActions={(row) => (
+                  <ConfirmForm
+                    title="حذف الدفعة"
+                    description="هل أنت متأكد؟ سيتم حذف الدفعة، وإذا كانت مرتبطة برصيد زبون أو مورد سيتم عكس تأثيرها."
+                    confirmText="نعم، احذف الدفعة"
+                    loading={deletePaymentMutation.isPending}
+                    onConfirm={() => deletePaymentMutation.mutate(row.id)}
+                    trigger={
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        disabled={deletePaymentMutation.isPending || !row.id}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
+                )}
               />
             )}
           </CardContent>

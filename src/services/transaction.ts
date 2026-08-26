@@ -156,6 +156,8 @@ export async function payCustomerDebt(dataToSend: {
         exchangeRate: dataToSend.exchangeRate,
         amount_base: dataToSend.amount_base,
         type: "income",
+        source: "manual",
+        balanceApplied: true,
       },
     });
     return response.data;
@@ -188,6 +190,8 @@ export async function paySupplierDebt(dataToSend: {
         exchangeRate: dataToSend.exchangeRate,
         amount_base: dataToSend.amount_base,
         type: "expense",
+        source: "manual",
+        balanceApplied: true,
       },
     });
     return response.data;

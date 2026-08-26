@@ -79,6 +79,8 @@ export default function TakeBalanceForm({isOpen, setIsOpen, className}: {isOpen:
                   exchangeRate: exchangeRate,
                   amount_base: -amount,
                   type: "expense",
+                  source: "cashbox",
+                  balanceApplied: false,
                 });
               }}
             >

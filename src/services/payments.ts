@@ -3,6 +3,8 @@ import apiClient from "@/lib/axios";
 export interface Payment {
   id?: string;
   type: string,
+  source?: "manual" | "cashbox" | "generated",
+  balanceApplied?: boolean,
   supplierId?: string,
   customerId?: string,
   currency: string,
@@ -46,4 +48,13 @@ export async function createPayment({ newPayment }: { newPayment: Payment }): Pr
   }
 }
 
+export async function deletePayment(id: string) {
+  try {
+    const response = await apiClient.delete(`/api/payments/${id}`);
+    return response.data;
+  } catch (err) {
+    console.error("خطأ أثناء حذف الدفعة:", err);
+    throw err;
+  }
+}
 
