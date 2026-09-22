@@ -13,6 +13,7 @@ const UnauthorizedPage = React.lazy(() => import("@/pages/Unauthorized"));
 const FinancialStatement = React.lazy(
   () => import("@/pages/FinancialStatement")
 );
+const Reports = React.lazy(() => import("@/pages/Reports"));
 const CustomerDetails = React.lazy(() => import("@/pages/CustomerDetails"));
 const SupplierDetails = React.lazy(() => import("@/pages/SupplierDetails"));
 const ProductDetails = React.lazy(() => import("@/pages/ProductDetails"));
@@ -74,6 +75,10 @@ export const routesConfig = [
   {
     path: "/financialStatement",
     element: withPermission(<FinancialStatement />, "financial_statement"),
+  },
+  {
+    path: "/reports",
+    element: withPermission(<Reports />, "financial_statement"),
   },
   {
     path: "/Exchange",
