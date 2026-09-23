@@ -262,7 +262,7 @@ export async function handleSupplierReturn(newReturn: {
         warehouse: newReturn.warehouse,
         qty: newReturn.qty,
         returnValue: newReturn.returnValue,
-        referenceId: newReturn.productId,
+        referenceId: newReturn.referenceId,
         productId: newReturn.productId,
         returnType: newReturn.returnType,
         partValue: newReturn.partValue,

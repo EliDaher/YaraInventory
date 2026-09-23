@@ -4,10 +4,10 @@ import AddProductForm from "@/components/Products/AddProductForm";
 import ProductsDataTable from "@/components/Products/ProductsDataTable";
 import TransfareForm from "@/components/Products/TransfareForm";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import FilterSelection from "@/components/ui/custom/FilterSelection";
-import FormInput from "@/components/ui/custom/FormInput";
 import Loading from "@/components/ui/custom/Loading";
+import { Input } from "@/components/ui/input";
 import { useProductContext } from "@/contexts/ProductContext";
 import { Box } from "lucide-react";
 import { useState, useMemo } from "react";
@@ -91,7 +91,10 @@ export default function Products() {
   return (
     <DashboardLayout>
       <div className="space-y-4">
-        <div dir="rtl" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div
+          dir="rtl"
+          className="grid items-stretch gap-4 xl:grid-cols-[24rem_minmax(0,1fr)]"
+        >
           <StatsCard
             onClick={() => {}}
             title="اجماري رصيد المنتجات"
@@ -99,6 +102,64 @@ export default function Products() {
             icon={Box}
             onlyAdmin={true}
           />
+          <Card className="h-full p-4">
+            <div className="grid h-full items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(10rem,1fr)_minmax(10rem,1fr)_auto_auto_auto]">
+              <FilterSelection
+                DataToFilter={products}
+                selectedFilter={categoryFilter}
+                setSelectedFilter={setCategoryFilter}
+                FilterBy="category"
+                Placeholder="اختر الصنف"
+              />
+
+              <FilterSelection
+                DataToFilter={products}
+                selectedFilter={warehouseFilter}
+                setSelectedFilter={setWarehouseFilter}
+                FilterBy="warehouse"
+                Placeholder="اختر المستودع"
+              />
+
+              <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-1">
+                <span className="whitespace-nowrap text-sm font-medium">
+                  السعر:
+                </span>
+                <Input
+                  type="number"
+                  className="h-10 w-full text-right lg:w-28"
+                  value={priceRange[0]}
+                  onChange={(e) =>
+                    setPriceRange([Number(e.target.value), priceRange[1]])
+                  }
+                  placeholder="من"
+                />
+              </div>
+
+              <Input
+                type="number"
+                className="h-10 w-full text-right lg:w-28"
+                value={priceRange[1]}
+                onChange={(e) =>
+                  setPriceRange([priceRange[0], Number(e.target.value)])
+                }
+                placeholder="إلى"
+              />
+
+              <Button
+                variant="outline"
+                className="h-10 w-full whitespace-nowrap lg:w-auto"
+                onClick={() => {
+                  setWarehouseFilter("all");
+                  setCategoryFilter("all");
+                  setStockFilter("all");
+                  setOnlyLowStock(false);
+                  setPriceRange([0, 100000]);
+                }}
+              >
+                إعادة تعيين الفلاتر
+              </Button>
+            </div>
+          </Card>
         </div>
         <AddProductForm
           isOpen={openForm}
@@ -110,77 +171,6 @@ export default function Products() {
           setIsOpen={setOpenTransfare}
           row={productRow as ProductTableRow}
         />
-
-        {/* ======= فلاتر احترافية ======= */}
-        <Card>
-          <CardHeader>
-            <CardTitle>الفلاتر</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            <FilterSelection
-              DataToFilter={products}
-              selectedFilter={categoryFilter}
-              setSelectedFilter={setCategoryFilter}
-              FilterBy="category"
-              Placeholder="اختر الصنف"
-            />
-
-            <FilterSelection
-              DataToFilter={products}
-              selectedFilter={warehouseFilter}
-              setSelectedFilter={setWarehouseFilter}
-              FilterBy="warehouse"
-              Placeholder="اختر المستودع"
-            />
-
-            {/* <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={onlyLowStock}
-                onChange={(e) => setOnlyLowStock(e.target.checked)}
-              />
-              المخزون الحرج فقط
-            </label> */}
-
-            <div className="flex w-full items-center gap-2">
-              <span>السعر:</span>
-              <FormInput
-                label=""
-                type="number"
-                className="border rounded px-2 py-1"
-                value={priceRange[0]}
-                onChange={(e) =>
-                  setPriceRange([Number(e.target.value), priceRange[1]])
-                }
-                placeholder="min"
-              />
-              -
-              <FormInput
-                label=""
-                type="number"
-                className="border rounded px-2 py-1"
-                value={priceRange[1]}
-                onChange={(e) =>
-                  setPriceRange([priceRange[0], Number(e.target.value)])
-                }
-                placeholder="max"
-              />
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={() => {
-                setWarehouseFilter("all");
-                setCategoryFilter("all");
-                setStockFilter("all");
-                setOnlyLowStock(false);
-                setPriceRange([0, 100000]);
-              }}
-            >
-              إعادة تعيين الفلاتر
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* ======= الجدول ======= */}
         {productsLoading ? (

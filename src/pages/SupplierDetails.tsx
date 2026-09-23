@@ -126,34 +126,47 @@ export default function SupplierDetails() {
 
   const paymentsColumns = [
     { label: "المعرف", key: "id", hidden: true },
-    { label: "المبلغ", key: "amount" },
-    { label: "الوصف", key: "note" },
-    { label: "التاريخ", key: "date" },
+    { label: "المبلغ", key: "amount", sortable: true },
+    { label: "الوصف", key: "note", sortable: true },
+    { label: "التاريخ", key: "date", sortable: true },
   ];
 
   const purchasesColumns = [
     { label: "المعرف", key: "id", hidden: true },
-    { label: "كود المادة", key: "code" },
-    { label: "اسم المادة", key: "name" },
-    { label: "الكمية", key: "quantity" },
-    { label: "المستودع", key: "warehouse" },
-    { label: "كلفة النقل", key: "transferCost" },
-    { label: "السعر النهائي", key: "totalPrice" },
-    { label: "التاريخ", key: "date" },
+    { label: "كود المادة", key: "code", sortable: true },
+    { label: "اسم المادة", key: "name", sortable: true },
+    { label: "الكمية", key: "quantity", sortable: true },
+    { label: "المستودع", key: "warehouse", sortable: true },
+    { label: "كلفة النقل", key: "transferCost", sortable: true },
+    { label: "السعر النهائي", key: "totalPrice", sortable: true },
+    { label: "التاريخ", key: "date", sortable: true },
   ];
 
   const handleReturn = async (e: React.FormEvent, row) => {
     e.preventDefault();
     try {
+      const productId = row.productId || row.productID;
+      const quantityToReturn = Number(returnAmount);
+
+      if (!productId) {
+        toast.error("تعذر تحديد المنتج المرتبط بعملية الشراء");
+        return;
+      }
+
+      if (!quantityToReturn || quantityToReturn <= 0) {
+        toast.error("الرجاء إدخال كمية صحيحة للإرجاع");
+        return;
+      }
+
       const payload = {
         productCode: row.code,
         supplierId: supplierId.id,
         warehouse: row.warehouse,
-        qty: -Number(returnAmount),
+        qty: quantityToReturn,
         returnType: isDebt,
-        returnValue: Number(returnAmount) * row.payPrice,
+        returnValue: quantityToReturn * row.payPrice,
         referenceId: row.id,
-        productId: row.id,
+        productId,
         partValue: partValue,
         reason: reason,
       };
