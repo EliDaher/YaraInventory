@@ -1,3 +1,4 @@
+import { formatNumber, decimal } from "@/lib/numbers";
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 
 export default function InvoicePdf({ sell }: { sell: any }) {
@@ -46,7 +47,7 @@ export default function InvoicePdf({ sell }: { sell: any }) {
         {products.map((p: any, i: number) => {
           const qty = Number(p?.qty || 0);
           const sellPrice = Number(p?.sellPrice || 0);
-          const lineTotal = qty * sellPrice;
+          const lineTotal = decimal(qty).times(sellPrice);
 
           return (
             <View key={i} style={styles.row}>
@@ -55,13 +56,13 @@ export default function InvoicePdf({ sell }: { sell: any }) {
               </Text>
 
               <View style={[styles.cellRow, styles.qtyPriceCell]}>
-                <Text style={styles.ltr}>{sellPrice.toFixed(2)}</Text>
+                <Text style={styles.ltr}>{formatNumber(sellPrice)}</Text>
                 <Text> × </Text>
-                <Text style={styles.ltr}>{qty}</Text>
+                <Text style={styles.ltr}>{formatNumber(qty)}</Text>
               </View>
 
               <Text style={[styles.cell, styles.totalCell]}>
-                {lineTotal.toFixed(2)}
+                {formatNumber(lineTotal)}
               </Text>
             </View>
           );
@@ -72,7 +73,7 @@ export default function InvoicePdf({ sell }: { sell: any }) {
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>الحسم:</Text>
           <Text style={[styles.totalAmount, styles.ltr]}>
-            {discount.toFixed(2)}
+            {formatNumber(discount)}
           </Text>
         </View>
       )}
@@ -80,7 +81,7 @@ export default function InvoicePdf({ sell }: { sell: any }) {
       <View style={styles.totalContainer}>
         <Text style={styles.totalLabel}>المجموع:</Text>
         <Text style={[styles.totalAmount, styles.ltr]}>
-          {totalPrice.toFixed(2)}
+          {formatNumber(totalPrice)}
         </Text>
       </View>
 

@@ -1,3 +1,4 @@
+import { decimal, roundNumber } from "@/lib/numbers";
 import React, { useState } from "react";
 import PopupForm from "../ui/custom/PopupForm";
 import { Button } from "../ui/button";
@@ -68,7 +69,7 @@ export default function CustomerPaymentForm({ isOpen, setIsOpen, customerData })
             amount:
               currency == "USD"
                 ? amount
-                : Number((amount / exchangeRate).toFixed(1)),
+                : roundNumber(decimal(roundNumber(amount)).div(roundNumber(exchangeRate))),
             note,
             currency: currency,
             exchangeRate: exchangeRate,

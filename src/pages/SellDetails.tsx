@@ -1,3 +1,4 @@
+import { decimal, formatNumber } from "@/lib/numbers";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -217,7 +218,7 @@ export default function SellDetails() {
               </div>
               <div>
                 <span className="text-muted-foreground">سعر الصرف:</span>
-                <p>{sell.exchangeRate.toLocaleString()}</p>
+                <p>{formatNumber(sell.exchangeRate)}</p>
               </div>
               <div>
                 <span className="text-muted-foreground">حالة الدفع:</span>
@@ -303,12 +304,12 @@ export default function SellDetails() {
                             className="w-full border rounded px-1 text-right"
                           />
                         ) : (
-                          p[field]
+                          formatNumber(p[field])
                         )}
                       </TableCell>
                     ))}
                     <TableCell className="text-right">
-                      {(p.sellPrice * p.qty).toLocaleString()}
+                      {formatNumber(decimal(p.sellPrice).times(decimal(p.qty)))}
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
@@ -332,19 +333,19 @@ export default function SellDetails() {
             <div className="flex justify-between">
               <span>المجموع:</span>
               <span className="font-medium">
-                {((sell?.totalPrice || 0) + (sell?.discount || 0)).toLocaleString()}
+                {formatNumber(decimal(sell?.totalPrice || 0).plus(decimal(sell?.discount || 0)))}
               </span>
             </div>
             <div className="flex justify-between">
               <span>الحسم:</span>
               <span className="font-medium">
-                {sell?.discount?.toLocaleString() || 0}{" "}
+                {formatNumber(sell?.discount) || 0}{" "}
               </span>
             </div>
             <div className="flex justify-between">
               <span>المدفوع:</span>
               <span className="font-medium">
-                {sell?.partValue?.toLocaleString()}
+                {formatNumber(decimal(sell?.totalPrice || 0).minus(sell?.remainingDebt || 0))}
               </span>
             </div>
             <Separator />
@@ -355,7 +356,7 @@ export default function SellDetails() {
                   sell.remainingDebt > 0 ? "text-red-600" : "text-green-600"
                 }
               >
-                {((sell?.totalPrice || 0) - (sell?.partValue || 0))?.toLocaleString()}
+                {formatNumber(sell?.remainingDebt)}
               </span>
             </div>
           </CardContent>

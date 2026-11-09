@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { DataTable } from '@/components/dashboard/DataTable';
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import getAllCustomer from '@/services/customer';
@@ -39,7 +40,7 @@ export default function Customer() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="ديون على الزبائن"
-            value={-customersDebt.toFixed(2) || 0}
+            value={formatNumber(-customersDebt) || 0}
             icon={HandCoins}
           />
         </div>

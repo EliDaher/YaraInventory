@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { Loader2, LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -46,7 +47,7 @@ export function StatsCard({
         <Icon className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold">{typeof value === "number" ? formatNumber(value) : value}</div>
         {(description || trend) && (
           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
             {trend && (
@@ -57,7 +58,7 @@ export function StatsCard({
                 )}
               >
                 {trend.isPositive ? "+" : ""}
-                {trend.value}
+                {formatNumber(trend.value)}
               </span>
             )}
             {description && <span>{description}</span>}
@@ -88,7 +89,7 @@ export function StatsCard({
           </div>
         ) : (
           <>
-            <div className="text-2xl font-bold">{value}</div>
+            <div className="text-2xl font-bold">{typeof value === "number" ? formatNumber(value) : value}</div>
 
             {(description || trend) && (
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
@@ -102,7 +103,7 @@ export function StatsCard({
                     )}
                   >
                     {trend.isPositive ? "+" : ""}
-                    {trend.value}
+                    {formatNumber(trend.value)}
                   </span>
                 )}
 

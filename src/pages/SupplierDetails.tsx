@@ -1,3 +1,4 @@
+import { decimal, formatNumber, roundNumber } from "@/lib/numbers";
 import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -230,7 +231,7 @@ export default function SupplierDetails() {
                       amount:
                         currency == "USD"
                           ? amount
-                          : Number((Number(amount) / exchangeRate).toFixed(1)),
+                          : roundNumber(decimal(roundNumber(amount)).div(roundNumber(exchangeRate))),
                       note,
                       currency: currency,
                       exchangeRate: exchangeRate,
@@ -297,7 +298,7 @@ export default function SupplierDetails() {
                       amount:
                         currency == "USD"
                           ? -amount
-                          : -Number((Number(amount) / exchangeRate).toFixed(1)),
+                          : -roundNumber(decimal(roundNumber(amount)).div(roundNumber(exchangeRate))),
                       note,
                       currency: currency,
                       exchangeRate: exchangeRate,
@@ -423,14 +424,14 @@ export default function SupplierDetails() {
                           onChange={(e) => setReturnAmount(e.target.value)}
                         />
                         <p className="text-sm text-gray-500">
-                          الكمية الأصلية: {row.quantity}
+                          الكمية الأصلية: {formatNumber(row.quantity)}
                           <br />
-                          سعر الواحدة: {row.payPrice}
+                          سعر الواحدة: {formatNumber(row.payPrice)}
                         </p>
                       </div>
 
                       <p className="font-semibold">
-                        المبلغ الإجمالي: {row.payPrice * Number(returnAmount)}
+                        المبلغ الإجمالي: {formatNumber(decimal(row.payPrice).times(returnAmount || 0).toNumber())}
                       </p>
 
                       <PaymentTypeSelector

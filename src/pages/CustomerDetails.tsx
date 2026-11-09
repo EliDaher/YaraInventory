@@ -1,3 +1,4 @@
+import { decimal, formatNumber, roundNumber } from "@/lib/numbers";
 import CustomerPaymentForm from "@/components/Customers/CustomerPaymentForm";
 import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
@@ -246,7 +247,7 @@ export default function CustomerDetails() {
                       amount:
                         currency == "USD"
                           ? -amount
-                          : -Number((amount / exchangeRate).toFixed(1)),
+                          : -roundNumber(decimal(roundNumber(amount)).div(roundNumber(exchangeRate))),
                       note,
                       currency: currency,
                       exchangeRate: exchangeRate,
@@ -449,8 +450,8 @@ export default function CustomerDetails() {
                               className="border p-2 rounded-md"
                             >
                               <p className="font-semibold">{product.name}</p>
-                              <p>الكمية الأصلية: {product.qty}</p>
-                              <p>سعر الوحدة: {product.sellPrice}</p>
+                              <p>الكمية الأصلية: {formatNumber(product.qty)}</p>
+                              <p>سعر الوحدة: {formatNumber(product.sellPrice)}</p>
                               <p>المستودع: {product.warehouse}</p>
                               <WarehouseSelect
                                 label="مستودع الإرجاع"

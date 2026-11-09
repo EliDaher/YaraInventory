@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import {
   LineChart,
   Line,
@@ -67,7 +68,7 @@ export function ChartContainer({
                 />
 
                 {/* المحور الأيسر للـ total */}
-                <YAxis
+                <YAxis tickFormatter={(value) => formatNumber(value)}
                   yAxisId="left"
                   tick={{ fontSize: 12 }}
                   tickLine={false}
@@ -75,7 +76,7 @@ export function ChartContainer({
                 />
 
                 {/* المحور الأيمن للـ count */}
-                <YAxis
+                <YAxis tickFormatter={(value) => formatNumber(value)}
                   yAxisId="right"
                   orientation="right"
                   tick={{ fontSize: 12 }}
@@ -83,7 +84,7 @@ export function ChartContainer({
                   axisLine={false}
                 />
 
-                <Tooltip
+                <Tooltip formatter={(value: number) => formatNumber(value)}
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
@@ -124,6 +125,7 @@ export function ChartContainer({
                 style: "currency",
                 currency: "SYP",
                 minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
               })}
             </p>
           </div>
@@ -140,12 +142,12 @@ export function ChartContainer({
                 tickLine={false}
                 axisLine={true}
               />
-              <YAxis
+              <YAxis tickFormatter={(value) => formatNumber(value)}
                 tick={{ fontSize: 12 }}
                 tickLine={false}
                 axisLine={true}
               />
-              <Tooltip
+              <Tooltip formatter={(value: number) => formatNumber(value)}
                 contentStyle={{
                   backgroundColor: "hsl(var(--card))",
                   border: "1px solid hsl(var(--border))",
@@ -178,7 +180,7 @@ export function ChartContainer({
             <ResponsiveContainer width="100%" height={340}>
               <PieChart>
                 <Pie
-                  label
+                  label={({ value }) => formatNumber(value)}
                   data={pieData}
                   cx="50%"
                   cy="50%"
@@ -193,7 +195,7 @@ export function ChartContainer({
                   ))}
                 </Pie>
 
-                <Tooltip />
+                <Tooltip formatter={(value: number) => formatNumber(value)} />
               </PieChart>
             </ResponsiveContainer>
 
@@ -268,11 +270,11 @@ export function ChartContainer({
                   <p><strong>{label}</strong></p>
                   {payload.map((entry: any, i: number) => (
                     <p key={i} style={{ color: entry.color }}>
-                      {entry.name}: {Number(entry.value).toLocaleString("en-SY")}
+                      {entry.name}: {formatNumber(Number(entry.value))}
                     </p>
                   ))}
                   <hr />
-                  <p><strong>المجموع:</strong> {Number(total).toLocaleString("en-SY")}</p>
+                  <p><strong>المجموع:</strong> {formatNumber(Number(total))}</p>
                 </div>
               );
             }
@@ -294,12 +296,12 @@ export function ChartContainer({
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={stackData}>
                 <XAxis dataKey="date" />
-                <YAxis />
+                <YAxis tickFormatter={(value) => formatNumber(value)} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />
                 {users.map(user => (
                   <Bar key={user} dataKey={user} stackId="a" fill={getColor(user)}>
-                    <LabelList dataKey={user} content={({ value }: any) => (
+                    <LabelList formatter={(value: number) => formatNumber(value)} dataKey={user} content={({ value }: any) => (
                       <text
                         x={0}
                         y={0}
@@ -316,8 +318,8 @@ export function ChartContainer({
               </BarChart>
             </ResponsiveContainer>
               <div style={{ textAlign: "center", marginTop: "10px", fontWeight: "bold", fontSize: 18 }}>
-                <p>المجموع الشهري: {monthlyTotal.toLocaleString("en-SY")}</p>
-                <p>المتوسط اليومي: {Number(averageMonthly.toFixed(0)).toLocaleString("en-SY")}</p>
+                <p>المجموع الشهري: {formatNumber(monthlyTotal)}</p>
+                <p>المتوسط اليومي: {formatNumber(averageMonthly)}</p>
               </div>
             </div>
           );
@@ -344,12 +346,12 @@ export function ChartContainer({
                   tickLine={false}
                   axisLine={false}
                 />
-                <YAxis
+                <YAxis tickFormatter={(value) => formatNumber(value)}
                   tick={{ fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                 />
-                <Tooltip
+                <Tooltip formatter={(value: number) => formatNumber(value)}
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",

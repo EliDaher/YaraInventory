@@ -1,3 +1,4 @@
+import { formatNumericField, formatNumber } from "@/lib/numbers";
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -111,6 +112,7 @@ export function DataTable({
   };
 
   const renderCellContent = (value: any, key: string) => {
+    const displayed = formatNumericField(value, key);
     if (key === "status") {
       return (
         <Badge
@@ -128,7 +130,7 @@ export function DataTable({
       );
     }
     if (key === "email") {
-      return <span className="text-muted-foreground">{value}</span>;
+      return <span className="text-muted-foreground">{displayed}</span>;
     }
     if (key === "createdAt" || key === "date" || key === "timestamp") {
       return (
@@ -143,33 +145,33 @@ export function DataTable({
     }
     if (key === "amount" && amountBold) {
       return (
-        <span className="text-primary font-extrabold text-xl">{value}</span>
+        <span className="text-primary font-extrabold text-xl">{displayed}</span>
       );
     }
     if (key === "quantity") {
       return (
         <span className="">
-          {typeof value == "number" ? value.toFixed(2) : value}
+          {displayed}
         </span>
       );
     }
     if (key === "totalPrice") {
       return (
         <span className="">
-          {typeof value == "number" ? value.toFixed(2) : value}
+          {displayed}
         </span>
       );
     }
     if (key === "balance") {
       return value > 0 ? (
-        <span className="text-green-700 font-bold text-lg">له {value}</span>
+        <span className="text-green-700 font-bold text-lg">له {formatNumber(value)}</span>
       ) : (
         <span className="text-destructive font-bold text-lg">
-          عليه {-value}
+          عليه {formatNumber(-Number(value))}
         </span>
       );
     }
-    return value;
+    return displayed;
   };
 
   const SKELETON_ROWS = Array.from({ length: pageSize });

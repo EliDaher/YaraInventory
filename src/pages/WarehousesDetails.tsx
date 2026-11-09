@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,7 @@ export default function WarehousesDetails() {
             <StatsCard
               onClick={() => {}}
               title="صندوق اليوم"
-              value={totalTodaySales?.toFixed(2) || 0}
+              value={formatNumber(totalTodaySales) || 0}
               icon={PlusCircle}
               loading={isLoading}
             />

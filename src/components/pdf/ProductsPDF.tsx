@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 
 type ProductRow = {
@@ -50,7 +51,7 @@ export default function ProductsPdf({ products }: { products: ProductRow[] }) {
             </Text>
 
             <Text style={[styles.cell, styles.qtyCell, styles.ltr]}>
-              {Number(product.quantity || 0)}
+              {formatNumber(product.quantity)}
             </Text>
 
             <Text style={[styles.cell, styles.warehouseCell]}>
@@ -58,11 +59,11 @@ export default function ProductsPdf({ products }: { products: ProductRow[] }) {
             </Text>
 
             <Text style={[styles.cell, styles.buyCell, styles.ltr]}>
-              {Number(product.payPrice || 0).toFixed(2)}
+              {formatNumber(Number(product.payPrice || 0))}
             </Text>
 
             <Text style={[styles.cell, styles.sellCell, styles.ltr]}>
-              {Number(product.sellPrice || 0).toFixed(2)}
+              {formatNumber(Number(product.sellPrice || 0))}
             </Text>
           </View>
         ))}

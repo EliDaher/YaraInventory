@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -28,10 +29,7 @@ const formatDateInput = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const formatNumber = (value: number | string | undefined) =>
-  Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 2,
-  });
+
 
 const formatStatus = (status: string) => {
   if (status === "cash") return "مدفوع";
@@ -78,11 +76,6 @@ export default function Reports() {
         productsSummary: `${formatNumber(invoice.totalQuantity)} / ${
           invoice.productsCount
         }`,
-        totalBeforeDiscountText: formatNumber(invoice.totalBeforeDiscount),
-        discountText: formatNumber(invoice.discount),
-        totalPriceText: formatNumber(invoice.totalPrice),
-        paidAmountText: formatNumber(invoice.paidAmount),
-        remainingDebtText: formatNumber(invoice.remainingDebt),
       })),
     [report]
   );
@@ -93,11 +86,11 @@ export default function Reports() {
     { key: "customerName", label: "الزبون", sortable: true },
     { key: "paymentStatusLabel", label: "حالة الدفع", sortable: true },
     { key: "productsSummary", label: "الكمية / المنتجات", sortable: true },
-    { key: "totalBeforeDiscountText", label: "قبل الحسم", sortable: true },
-    { key: "discountText", label: "الحسم", sortable: true },
-    { key: "totalPriceText", label: "الإجمالي", sortable: true },
-    { key: "paidAmountText", label: "المدفوع", sortable: true },
-    { key: "remainingDebtText", label: "المتبقي", sortable: true },
+    { key: "totalBeforeDiscount", label: "قبل الحسم", sortable: true },
+    { key: "discount", label: "الحسم", sortable: true },
+    { key: "totalPrice", label: "الإجمالي", sortable: true },
+    { key: "paidAmount", label: "المدفوع", sortable: true },
+    { key: "remainingDebt", label: "المتبقي", sortable: true },
     { key: "currency", label: "العملة", sortable: true },
     { key: "executer", label: "المنفذ", sortable: true },
   ];

@@ -1,3 +1,4 @@
+import { normalizeNumbers, decimal, roundNumber } from "@/lib/numbers";
 import React, { useEffect } from "react";
 import PopupForm from "../ui/custom/PopupForm";
 import { Button } from "../ui/button";
@@ -104,7 +105,8 @@ export default function AddProductForm({
 
   // ✅ نفس منطقك التجاري السابق بالكامل
   const onSubmit = (values: FormValues) => {
-    const total = values.quantity * values.payPrice;
+    values = normalizeNumbers(values);
+    const total = roundNumber(decimal(values.quantity).times(values.payPrice));
     const transferCost = Number(values.transferCost ?? 0);
 
 
@@ -145,7 +147,7 @@ export default function AddProductForm({
           : total -
             (values.currency === "USD"
               ? values.partValue!
-              : Number((values.partValue! / values.exchangeRate).toFixed(1)));
+              : roundNumber(decimal(roundNumber(values.partValue!)).div(roundNumber(values.exchangeRate))));
 
     mutation.mutate({
       newProduct: {

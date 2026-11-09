@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { DataTable } from '@/components/dashboard/DataTable';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
@@ -44,7 +45,7 @@ export default function Suppliers() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title="ديون للموردين"
-                    value={suppliersDebt.toFixed(2) || 0}
+                    value={formatNumber(suppliersDebt) || 0}
                     icon={HandCoins}
                     loading={suppliersLoading}
                 />

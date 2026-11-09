@@ -1,3 +1,4 @@
+import { formatNumber, roundNumber } from "@/lib/numbers";
 import { ChartContainer } from "@/components/dashboard/ChartContainer";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { StatsCard } from "@/components/dashboard/StatsCard";
@@ -113,8 +114,8 @@ export default function Dashboard() {
     groupedSortedObject as Record<string, { income: number; expense: number }>,
   ).map(([day, { income, expense }]) => ({
     day,
-    income: Number(income.toFixed(3) || 0),
-    expense: Number(expense.toFixed(3)) || 0,
+    income: roundNumber(income),
+    expense: roundNumber(expense) || 0,
   }));
 
   // ✅ supplierMap لتسريع البحث
@@ -160,8 +161,8 @@ export default function Dashboard() {
             <StatsCard
               onClick={() => {}}
               title="إجمالي المقبوضات"
-              description={`اليوم: ${todayIncome.toFixed(3)}`}
-              value={totalIncome.toFixed(3) || 0}
+              description={`اليوم: ${formatNumber(todayIncome)}`}
+              value={formatNumber(totalIncome) || 0}
               icon={ArrowDown}
               className="rounded-br-none"
               loading={paymentsLoading}
@@ -177,8 +178,8 @@ export default function Dashboard() {
             <StatsCard
               onClick={() => {}}
               title="إجمالي المصروفات"
-              description={`اليوم: ${todayExpense.toFixed(3)}`}
-              value={totalExpense.toFixed(3) || 0}
+              description={`اليوم: ${formatNumber(todayExpense)}`}
+              value={formatNumber(totalExpense) || 0}
               icon={ArrowUp}
               className="rounded-br-none"
               loading={paymentsLoading}

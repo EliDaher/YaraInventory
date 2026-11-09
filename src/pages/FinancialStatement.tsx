@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -138,7 +139,7 @@ export default function FinancialStatement() {
               Object.entries(todaystotals).map(([currency, total]) => (
                 <StatsCard
                   title="صندوق اليوم"
-                  value={total.toLocaleString("en-US") || 0}
+                  value={formatNumber(total) || 0}
                   icon={Wallet}
                   description={currency}
                 />
@@ -149,7 +150,7 @@ export default function FinancialStatement() {
                 <div>
                   <StatsCard
                     title="الرصيد الحالي"
-                    value={total.toLocaleString("en-US") || 0}
+                    value={formatNumber(total) || 0}
                     icon={TrendingUp}
                     description={currency}
                     onlyAdmin={true}
@@ -158,7 +159,7 @@ export default function FinancialStatement() {
               ))}
             <StatsCard
               title="إجمالي المرتجع"
-              value={returns.toLocaleString("en-US")}
+              value={formatNumber(returns)}
               icon={ArrowDownCircle}
             />
           </div>

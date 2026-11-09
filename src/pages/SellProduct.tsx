@@ -1,3 +1,4 @@
+import { decimal, roundNumber } from "@/lib/numbers";
 import AddCustomerForm from '@/components/Customers/AddCustomerForm'
 import { DataTable } from '@/components/dashboard/DataTable'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
@@ -76,7 +77,7 @@ export default function SellProduct() {
   });
 
   useEffect(() => {
-    setFinalAmount(Number((Number(Amount) - Number(discount)).toFixed(3)))
+    setFinalAmount(roundNumber(decimal(Amount || 0).minus(roundNumber(discount || 0))))
   }, [discount, Amount]);
 
   const { data: customers, isLoading: customersLoading } = useQuery({
@@ -201,12 +202,13 @@ export default function SellProduct() {
                 sellProductMutation.mutate({
                   customerId: selectedRows.length > 0 ? selectedRows[0].id : "نقدي",
                   totalPrice: finalAmount,
+                  discount: roundNumber(discount || 0),
                   products: selectedProducts,
                   paymentStatus: isDebt === 'cash' ? 'cash' : isDebt === 'part' ? 'part' : 'debt',
-                  remainingDebt: isDebt === 'cash' ? 0 : isDebt === 'part' ? finalAmount - (currency == 'USD' ? Number(partValue) : Number((Number(partValue)/exchangeRate).toFixed(1))) : finalAmount,
+                  remainingDebt: isDebt === 'cash' ? 0 : isDebt === 'part' ? roundNumber(decimal(finalAmount).minus(currency == 'USD' ? roundNumber(partValue || 0) : roundNumber(decimal(roundNumber(partValue || 0)).div(roundNumber(exchangeRate))))) : finalAmount,
                   currency: currency,
                   exchangeRate: exchangeRate,
-                  amount_base: finalAmount * exchangeRate,
+                  amount_base: roundNumber(decimal(finalAmount).times(roundNumber(exchangeRate))),
                   partValue: Number(partValue),
                   ...(operationDate ? { date: operationDate } : {}),
                 })

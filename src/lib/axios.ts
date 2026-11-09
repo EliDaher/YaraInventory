@@ -1,3 +1,4 @@
+import { normalizeNumbers } from "./numbers";
 import axios from "axios";
 
 /**
@@ -36,6 +37,7 @@ export const apiClient = axios.create({
 // =========================
 apiClient.interceptors.request.use(
   (config) => {
+    if (config.data && typeof config.data === "object") config.data = normalizeNumbers(config.data);
     const token = localStorage.getItem("auth_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

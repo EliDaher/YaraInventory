@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import AddProductForm from "@/components/Products/AddProductForm";
@@ -98,7 +99,7 @@ export default function Products() {
           <StatsCard
             onClick={() => {}}
             title="اجماري رصيد المنتجات"
-            value={totalProductsBalance.toFixed(2) || 0}
+            value={formatNumber(totalProductsBalance) || 0}
             icon={Box}
             onlyAdmin={true}
           />

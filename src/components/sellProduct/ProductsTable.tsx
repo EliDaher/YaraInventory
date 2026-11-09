@@ -1,3 +1,4 @@
+import { decimal, roundNumber, formatNumber } from "@/lib/numbers";
 import React, { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
 
   // تحديث الكمية
   const updateQty = (id: string, qty: number) => {
+    qty = roundNumber(qty);
     if (qty > products.find((p) => p.id === id)?.quantity!) {
       toast.error("الكمية المطلوبة غير متوفرة في المخزون");
       return;
@@ -52,6 +54,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
     onChange(newSelected);
   };
   const updatePrice = (id: string, price: number) => {
+    price = roundNumber(price);
     const newSelected = selectedProducts
       .map((p) => (p.id === id ? { ...p, sellPrice: price } : p))
       .filter((p) => p.qty >= 0);
@@ -67,7 +70,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
   };
 
   // إجمالي الفاتورة
-  const total = selectedProducts.reduce((sum, p) => sum + p.sellPrice * p.qty, 0);
+  const total = roundNumber(selectedProducts.reduce((sum, p) => sum.plus(decimal(roundNumber(p.sellPrice)).times(roundNumber(p.qty))), decimal(0)));
   useEffect(()=>{
     setAmount(total)
   }, [total])
@@ -92,8 +95,8 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
               className="flex justify-between items-center p-1 hover:bg-gray-100 cursor-pointer"
               onClick={() => addProduct(p)}
             >
-              <span>{p.name} ({p.code}) - ${p.sellPrice} / {p.warehouse}</span>
-              <span>المخزون: {p.quantity}</span>
+              <span>{p.name} ({p.code}) - ${formatNumber(p.sellPrice)} / {p.warehouse}</span>
+              <span>المخزون: {formatNumber(p.quantity)}</span>
             </div>
           ))}
         </div>
@@ -135,7 +138,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
                     className="w-16"
                   />
                 </td>
-                <td className="border p-1">${(p.sellPrice * p.qty).toFixed(2)}</td>
+                <td className="border p-1">${formatNumber(decimal(p.sellPrice).times(decimal(p.qty)))}</td>
                 <td className="border p-1 text-center">
                   <Button
                     variant="destructive"
@@ -152,7 +155,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ products, onChange, setAm
                 الإجمالي
               </td>
               <td colSpan={2} className="border p-1 font-bold">
-                ${total.toFixed(2)}
+                ${formatNumber(total)}
               </td>
             </tr>
           </tbody>

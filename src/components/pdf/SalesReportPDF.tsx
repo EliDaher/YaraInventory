@@ -1,10 +1,8 @@
+import { formatNumber } from "@/lib/numbers";
 import { SalesReport } from "@/services/reports";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 
-const formatNumber = (value: number | string | undefined) =>
-  Number(value || 0).toLocaleString("en-US", {
-    maximumFractionDigits: 2,
-  });
+
 
 const formatStatus = (status: string) => {
   if (status === "cash") return "مدفوع";

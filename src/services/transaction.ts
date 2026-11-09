@@ -21,6 +21,7 @@ export interface sell {
   exchangeRate: number;
   amount_base: number;
   partValue: number;
+  discount?: number;
 }
 
 export interface returnData {

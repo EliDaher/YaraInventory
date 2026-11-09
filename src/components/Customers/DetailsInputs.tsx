@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { updateCustomer } from "@/services/customer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -162,7 +163,7 @@ export default function DetailsInputs({
             <input
               readOnly={key === "id" || key === "balance"}
               disabled={key === "address"}
-              value={value ?? ""}
+              value={key === "balance" ? formatNumber(value as number) : value ?? ""}
               onChange={(e) => handleChange(key, e.target.value)}
               className="bg-transparent border-b-2 border-transparent focus:border-primary-500 outline-none transition-all w-full"
             />

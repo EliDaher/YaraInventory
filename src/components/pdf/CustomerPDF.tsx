@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/numbers";
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 
 export interface Operations {
@@ -33,7 +34,7 @@ export default function CustomerPDF({
 
         <View style={styles.infoRow}>
           <Text>:معرف الزبون</Text>
-          <Text style={styles.ltr}>{balance}</Text>
+          <Text style={styles.ltr}>{formatNumber(balance)}</Text>
         </View>
       </View>
 
@@ -52,8 +53,8 @@ export default function CustomerPDF({
           <View key={i} style={styles.row}>
             <Text style={styles.cellDetails}>{p?.details}</Text>
             <Text style={styles.cellDate}>{p?.date}</Text>
-            <Text style={styles.cellFromCustomer}>{p?.fromCustomer}</Text>
-            <Text style={styles.cellToCustomer}>{p?.toTheCustoemr}</Text>
+            <Text style={styles.cellFromCustomer}>{formatNumber(p?.fromCustomer)}</Text>
+            <Text style={styles.cellToCustomer}>{formatNumber(p?.toTheCustoemr)}</Text>
           </View>
         ))}
       </View>

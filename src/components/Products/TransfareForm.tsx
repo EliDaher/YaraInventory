@@ -1,3 +1,4 @@
+import { formatNumber, normalizeNumbers } from "@/lib/numbers";
 import { ProductTableRow } from "@/pages/Products";
 import FormInput from "../ui/custom/FormInput";
 import PopupForm from "../ui/custom/PopupForm";
@@ -120,6 +121,7 @@ export default function TransferForm({
   /* ✅ Submit */
   /* ---------------------------------- */
   const onSubmit = (values: TransferFormValues) => {
+    values = normalizeNumbers(values);
     if (values.quantity > row.quantity) {
       toast.error("الكمية المدخلة أكبر من الكمية المتوفرة");
       return;
@@ -204,7 +206,7 @@ export default function TransferForm({
               className="mt-6 rounded-r-none"
               onClick={handleSetMaxQuantity}
             >
-              {row.quantity}
+              {formatNumber(row.quantity)}
             </Button>
           </div>
           {errors.quantity && (

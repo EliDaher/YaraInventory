@@ -1,3 +1,4 @@
+import { roundNumber } from "@/lib/numbers";
 import { ChartContainer } from "@/components/dashboard/ChartContainer"
 import { DataTable } from "@/components/dashboard/DataTable"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
@@ -184,7 +185,7 @@ const transfersColumns = [
 
       return {
         name: new Date(sell.date).toLocaleDateString(),
-        profit: profit.toFixed(3),
+        profit: roundNumber(profit),
       }
     })
   }
@@ -251,7 +252,7 @@ const transfersColumns = [
                     ) : (
                       <input
                         type="text"
-                        value={value as any}
+                        value={["payPrice", "sellPrice", "quantity"].includes(key) ? roundNumber(value as number) : value as any}
                         onChange={(e) => handleChange(key, e.target.value)}
                         className="bg-transparent border-b-2 border-transparent focus:border-primary-500 outline-none transition-all w-full"
                       />
