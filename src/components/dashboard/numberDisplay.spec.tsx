@@ -38,6 +38,26 @@ describe("numeric presentation", () => {
     expect(row.amount).toBe(12.3456789);
     expect(row.payPrice).toBe(1234.567);
   });
+  it("renders legacy missing and invalid balances without losing customer rows", () => {
+    const html = renderToStaticMarkup(
+      <DataTable
+        title="Customers"
+        columns={[{ key: "name", label: "Name" }, { key: "balance", label: "Balance" }]}
+        data={[
+          { name: "Missing balance" },
+          { name: "Invalid balance", balance: "invalid" },
+          { name: "Zero balance", balance: 0 },
+          { name: "Credit", balance: 2.5 },
+          { name: "Debt", balance: -3.5 },
+        ]}
+      />,
+    );
+    expect(html).toContain("Missing balance");
+    expect(html.match(/>—<\/td>/g)).toHaveLength(2);
+    expect(html).toContain(">0</td>");
+    expect(html).toContain("له 2.5");
+    expect(html).toContain("عليه 3.5");
+  });
   it("formats numeric cards and trends without altering text labels", () => {
     const html = renderToStaticMarkup(
       <StatsCard

@@ -1,3 +1,5 @@
+import { supplierQueryKey } from "@/services/supplier";
+import { customerSummaryKey } from "@/services/customer";
 import { formatNumber } from "@/lib/numbers";
 import { DataTable } from "@/components/dashboard/DataTable";
 import { StatsCard } from "@/components/dashboard/StatsCard";
@@ -50,6 +52,9 @@ export default function FinancialStatement() {
   const deletePaymentMutation = useMutation({
     mutationFn: deletePayment,
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: supplierQueryKey });
+      void queryClient.invalidateQueries({ queryKey: ["supplier-details"] });
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم حذف الدفعة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["payments-table"] });
     },

@@ -6,10 +6,10 @@ import AddBalanceForm from "@/components/FinancialStatement/AddBalanceForm";
 import TakeBalanceForm from "@/components/FinancialStatement/TakeBalanceForm";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { CardHeader, Card, CardContent } from "@/components/ui/card";
-import getAllCustomer from "@/services/customer";
+import { customerPageQuery, defaultCustomerPage } from "@/services/customer";
 import { getPaymentsByMonth } from "@/services/payments";
 import getAllSells from "@/services/sells";
-import getAllSupplier from "@/services/supplier";
+import { supplierSummaryQuery } from "@/services/supplier";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -42,13 +42,13 @@ export default function Dashboard() {
   });
 
   const { data: supplier, isLoading: supplierLoading } = useQuery({
-    queryKey: ["supplier-table"],
-    queryFn: getAllSupplier,
+    ...supplierSummaryQuery,
+    retry: false,
   });
 
-  const { data: customer, isLoading: customerLoading } = useQuery({
-    queryKey: ["customer-table"],
-    queryFn: getAllCustomer,
+  const { data: customer } = useQuery({
+    ...customerPageQuery(defaultCustomerPage),
+    retry: false,
   });
 
   const pieData = Object.values(sells || {}).reduce(
@@ -128,7 +128,7 @@ export default function Dashboard() {
   const paymentsWithSupplier =
     payments?.map((p: any) => ({
       ...p,
-      supplierName: supplierMap[p.supplierId] || "",
+      supplierName: supplierMap[typeof p.supplierId === "object" ? p.supplierId?.id : p.supplierId] || "",
     })) || [];
 
   const paymentsColumns = [
@@ -147,11 +147,10 @@ export default function Dashboard() {
   const todayExpense = chartData
     ?.filter((d) => d.day === dayjs().format("YYYY-MM-DD"))
     .reduce((sum, d) => sum + d.expense, 0);
-  const totalCustomerBalance = customer?.reduce((sum, d) => sum + d.balance, 0);
+  const totalCustomerBalance = customer?.totalBalance;
 
   // ✅ جلب آخر العمليات
   const lastPayments = [...(paymentsWithSupplier || [])].reverse().slice(0, 5);
-  const lastCustomers = [...(customer || [])].reverse().slice(0, 5);
 
   return (
     <DashboardLayout>
@@ -258,22 +257,6 @@ export default function Dashboard() {
               isLoading={paymentsLoading}
             />
 
-            {/* <DataTable
-              title="ابرز العملاء"
-              data={lastCustomers.map((customer: any) => ({
-                ...customer,
-                products: customer.products?.length ?? 0,
-              }))}
-              columns={[
-                { label: "المعرف", key: "id", hidden: true },
-                { label: "الاسم", key: "name" },
-                { label: "التاريخ", key: "date" },
-                { label: "عدد المنتجات", key: "products" },
-              ]}
-              defaultPageSize={5}
-              pageSizeOptions={[5]}
-              isLoading={customerLoading}
-            /> */}
           </CardContent>
         </Card>
       </div>

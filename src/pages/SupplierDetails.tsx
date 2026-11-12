@@ -1,3 +1,4 @@
+import { supplierQueryKey } from "@/services/supplier";
 import { decimal, formatNumber, roundNumber } from "@/lib/numbers";
 import DetailsInputs from "@/components/Customers/DetailsInputs";
 import { DataTable } from "@/components/dashboard/DataTable";
@@ -70,6 +71,7 @@ export default function SupplierDetails() {
   const paySupplierDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => paySupplierDebt(dataToSend as any),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: supplierQueryKey });
       toast.success("تم إضافة الدفعة بنجاح!");
       setAmount("");
       setNote("");
@@ -88,6 +90,7 @@ export default function SupplierDetails() {
   const deletePaymentMutation = useMutation({
     mutationFn: deletePayment,
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: supplierQueryKey });
       toast.success("تم حذف الدفعة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["supplier-details", supplierId] });
       queryClient.invalidateQueries({ queryKey: ["payments-table"] });
@@ -112,6 +115,7 @@ export default function SupplierDetails() {
       reason: string;
     }) => handleSupplierReturn(dataToSend),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: supplierQueryKey });
       toast.success("تم الارجاع بنجاح!");
       setReturnAmount('');
       setOpenRowId(null);

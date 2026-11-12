@@ -34,7 +34,23 @@ interface TableData {
   [key: string]: any;
 }
 
+export interface RemoteTableControls {
+  search: string;
+  sort: { key: string; direction: "asc" | "desc" } | null;
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  busy: boolean;
+  failed: boolean;
+  onSearch: (value: string) => void;
+  onSort: (key: string) => void;
+  onPage: (page: number) => void;
+  onPageSize: (size: number) => void;
+  onRetry: () => void;
+}
+
 interface DataTableProps {
+  remote?: RemoteTableControls;
   title: string;
   description?: string;
   columns: TableColumn[];
@@ -66,15 +82,16 @@ export function DataTable({
   amountBold = false,
   onRowClick,
   titleButton,
-  isLoading
+  isLoading,
+  remote,
 }: DataTableProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState<{
+  const [localSearch, setSearchTerm] = useState("");
+  const [localSort, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(defaultPageSize);
+  const [localPage, setCurrentPage] = useState(1);
+  const [localPageSize, setPageSize] = useState(defaultPageSize);
 
   const [inventoryUser, setInventoryUser] = useState<inventoryUser>();
   useEffect(() => {
@@ -82,13 +99,18 @@ export function DataTable({
     setInventoryUser(temUser);
   }, []);
 
-  const filteredData = data.filter((item) =>
+  const searchTerm = remote?.search ?? localSearch;
+  const sortConfig = remote ? remote.sort : localSort;
+  const currentPage = remote?.page ?? localPage;
+  const pageSize = remote?.pageSize ?? localPageSize;
+
+  const filteredData = remote ? data : data.filter((item) =>
     Object.values(item).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase()),
     ),
   );
 
-  const sortedData = [...filteredData].sort((a, b) => {
+  const sortedData = remote ? data : [...filteredData].sort((a, b) => {
     if (!sortConfig) return 0;
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
@@ -97,13 +119,17 @@ export function DataTable({
     return 0;
   });
 
-  const totalPages = Math.ceil(sortedData.length / pageSize);
-  const paginatedData = sortedData.slice(
+  const totalPages = Math.ceil((remote?.totalItems ?? sortedData.length) / pageSize);
+  const paginatedData = remote ? data : sortedData.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
 
   const handleSort = (key: string) => {
+    if (remote) {
+      remote.onSort(key);
+      return;
+    }
     let direction: "asc" | "desc" = "asc";
     if (sortConfig?.key === key && sortConfig.direction === "asc") {
       direction = "desc";
@@ -163,11 +189,16 @@ export function DataTable({
       );
     }
     if (key === "balance") {
-      return value > 0 ? (
-        <span className="text-green-700 font-bold text-lg">له {formatNumber(value)}</span>
+      if (typeof value !== "number" && (typeof value !== "string" || !value.trim())) return "—";
+      const balance = Number(value);
+      if (!Number.isFinite(balance)) return "—";
+      if (balance === 0) return "0";
+
+      return balance > 0 ? (
+        <span className="text-green-700 font-bold text-lg">له {formatNumber(balance)}</span>
       ) : (
         <span className="text-destructive font-bold text-lg">
-          عليه {formatNumber(-Number(value))}
+          عليه {formatNumber(-balance)}
         </span>
       );
     }
@@ -196,11 +227,14 @@ export function DataTable({
               <div className="relative w-full">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search..."
+                  placeholder={remote ? "ابحث بالاسم أو الرقم..." : "Search..."}
                   value={searchTerm}
                   onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setCurrentPage(1);
+                    if (remote) remote.onSearch(e.target.value);
+                    else {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }
                   }}
                   className="pl-8"
                 />
@@ -210,6 +244,15 @@ export function DataTable({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {remote?.busy && !isLoading && <p role="status">جارٍ تحديث النتائج…</p>}
+        {remote?.failed && (
+          <p role="alert">
+            تعذّر تحميل الزبائن.{" "}
+            <button type="button" className="underline" onClick={remote.onRetry}>
+              إعادة المحاولة
+            </button>
+          </p>
+        )}
         <div className="overflow-x-auto rounded-md border">
           <Table className="text-center">
             <TableHeader>
@@ -227,10 +270,7 @@ export function DataTable({
                     {column.sortable ? (
                       <Button
                         variant="ghost"
-                        onClick={() => {
-                          handleSort(column.key);
-                          console.log(column.hidden);
-                        }}
+                        onClick={() => handleSort(column.key)}
                         className={`h-auto p-0 font-medium`}
                       >
                         {column.label}
@@ -275,8 +315,8 @@ export function DataTable({
               ) : paginatedData.length > 0 ? (
                 paginatedData.map((row, index) => (
                   <TableRow
-                    onClick={() => onRowClick?.(row)}
-                    key={index}
+                    onClick={() => { if (!remote?.busy && !remote?.failed) onRowClick?.(row); }}
+                    key={remote ? row.id : index}
                     className={getRowClassName ? getRowClassName(row) : ""}
                   >
                     {columns.map((column) => (
@@ -303,7 +343,7 @@ export function DataTable({
                     colSpan={columns.length + (renderRowActions ? 1 : 0)}
                     className="text-center"
                   >
-                    No data found.
+                    {remote ? (remote.failed ? "" : "لا توجد نتائج") : "No data found."}
                   </TableCell>
                 </TableRow>
               )}
@@ -318,8 +358,11 @@ export function DataTable({
               className="border rounded px-2 py-1 text-sm bg-background"
               value={pageSize}
               onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setCurrentPage(1);
+                if (remote) remote.onPageSize(Number(e.target.value));
+                else {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }
               }}
             >
               {pageSizeOptions.map((size) => (
@@ -333,21 +376,21 @@ export function DataTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
+              onClick={() => remote ? remote.onPage(currentPage - 1) : setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={remote?.busy || currentPage === 1}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
             <span className="text-sm">
-              Page {currentPage} of {totalPages || 1}
+              {remote ? `صفحة ${currentPage} من ${totalPages || 1}` : `Page ${currentPage} of ${totalPages || 1}`}
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                remote ? remote.onPage(currentPage + 1) : setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
-              disabled={currentPage === totalPages || totalPages === 0}
+              disabled={remote?.busy || currentPage >= totalPages}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>

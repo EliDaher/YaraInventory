@@ -1,3 +1,4 @@
+import { customerSummaryKey } from "@/services/customer";
 import PopupForm from "../ui/custom/PopupForm";
 import { Button } from "../ui/button";
 import { MinusCircle } from "lucide-react";
@@ -54,6 +55,7 @@ const CustomerDiscountForm = ({
       }),
 
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم إضافة الحسم بنجاح");
 
       queryClient.invalidateQueries({

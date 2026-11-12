@@ -1,3 +1,4 @@
+import { supplierQueryKey } from "@/services/supplier";
 import { normalizeNumbers, decimal, roundNumber } from "@/lib/numbers";
 import React, { useEffect } from "react";
 import PopupForm from "../ui/custom/PopupForm";
@@ -95,6 +96,8 @@ export default function AddProductForm({
     mutationFn: (data: { newProduct: any; newPurchase: any }) =>
       payNewProduct(data),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: supplierQueryKey });
+      void queryClient.invalidateQueries({ queryKey: ["supplier-details"] });
       reset();
       setIsOpen(false);
       queryClient.invalidateQueries({

@@ -1,3 +1,4 @@
+import { customerSummaryKey } from "@/services/customer";
 import { decimal, formatNumber, roundNumber } from "@/lib/numbers";
 import CustomerPaymentForm from "@/components/Customers/CustomerPaymentForm";
 import DetailsInputs from "@/components/Customers/DetailsInputs";
@@ -67,6 +68,7 @@ export default function CustomerDetails() {
   const payCustomerDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => payCustomerDebt(dataToSend as any),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم إضافة الدفعة بنجاح!");
       setAmount(0);
       setNote("");
@@ -85,6 +87,7 @@ export default function CustomerDetails() {
   const deletePaymentMutation = useMutation({
     mutationFn: deletePayment,
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم حذف الدفعة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["customer-details", customerId] });
       queryClient.invalidateQueries({ queryKey: ["payments-table"] });
@@ -111,6 +114,7 @@ export default function CustomerDetails() {
       }[];
     }) => handleCustomerReturn(dataToSend),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       queryClient.invalidateQueries({ queryKey: ["customer-details"] });
       toast.success("Return saved successfully");
       resetReturnForm();

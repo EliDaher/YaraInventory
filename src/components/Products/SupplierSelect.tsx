@@ -1,11 +1,11 @@
+import { useSupplierPage } from "@/hooks/useCustomerPage";
 import React from "react";
 import PopupForm from "../ui/custom/PopupForm";
 import { Button } from "../ui/button";
 import FormInput from "../ui/custom/FormInput";
-import getAllSupplier, { addSupplier } from "@/services/supplier";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addSupplier, supplierQueryKey } from "@/services/supplier";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "../dashboard/DataTable";
-import Loading from "../ui/custom/Loading";
 import { toast } from "sonner";
 
 type SupplierSelectProps = {
@@ -39,7 +39,7 @@ export default function SupplierSelect({
       !withDataTable && setIsOpen(false);
 
       queryClient.invalidateQueries({
-        queryKey: ["suppliers-table"],
+        queryKey: supplierQueryKey,
       });
     },
     onError: (error) => {
@@ -48,10 +48,8 @@ export default function SupplierSelect({
     },
   });
 
-  const { data: suppliers, isLoading: suppliersLoading } = useQuery({
-    queryKey: ["suppliers-table"],
-    queryFn: getAllSupplier,
-  });
+  const { data, isLoading, controls } = useSupplierPage(3, isOpen && Boolean(withDataTable));
+  const [selectedName, setSelectedName] = React.useState("");
 
   const supplierColumns = [
     { key: "id", label: "الرمز", sortable: true, hidden: true },
@@ -70,31 +68,26 @@ export default function SupplierSelect({
           variant="outline"
           className={`w-full ${className}`}
         >
-          {!supplierId ? "اختيار المورد" : supplierName}
+          {supplierId && selectedName ? selectedName : "اختيار المورد"}
         </Button>
       }
     >
-      {withDataTable &&
-        (suppliersLoading ? (
-          <Loading />
-        ) : suppliers?.length === 0 ? (
-          <div className="py-10 text-center text-muted-foreground">
-            لا يوجد موردين
-          </div>
-        ) : (
-          <DataTable
-            title=""
-            pageSizeOptions={[3]}
-            defaultPageSize={3}
-            onRowClick={(row) => {
-              setSupplierId(row.id);
-              setSupplierName(row.name);
-              setIsOpen(false);
-            }}
-            columns={supplierColumns}
-            data={suppliers ? suppliers : []} /*loading={suppliersLoading}*/
-          />
-        ))}
+      {withDataTable && (
+        <DataTable
+          title=""
+          pageSizeOptions={[3]}
+          defaultPageSize={3}
+          onRowClick={(row) => {
+            setSupplierId(row.id);
+            setSelectedName(row.name);
+            setIsOpen(false);
+          }}
+          columns={supplierColumns}
+          data={data?.items ?? []}
+          isLoading={isLoading}
+          remote={controls}
+        />
+      )}
 
       <FormInput
         id="supplier-name"

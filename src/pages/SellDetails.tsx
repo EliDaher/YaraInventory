@@ -1,3 +1,4 @@
+import { customerSummaryKey } from "@/services/customer";
 import { decimal, formatNumber } from "@/lib/numbers";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -53,6 +54,7 @@ export default function SellDetails() {
   const updateSellMutation = useMutation({
     mutationFn: (data: any) => updateSellById(id, data),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم تحديث الفاتورة بنجاح");
       queryClient.invalidateQueries({ queryKey: ["customer-details", sell.customerId] });
       navigate(-1);
@@ -66,6 +68,7 @@ export default function SellDetails() {
   const deleteSellMutation = useMutation({
     mutationFn: (data: any) => deleteSellById(id, data),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم حذف الفاتورة بنجاح");
       queryClient.invalidateQueries({
         queryKey: ["customer-details", sell.customerId],

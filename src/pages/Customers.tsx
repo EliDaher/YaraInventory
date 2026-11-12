@@ -1,9 +1,8 @@
 import { formatNumber } from "@/lib/numbers";
 import { DataTable } from '@/components/dashboard/DataTable';
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import getAllCustomer from '@/services/customer';
-import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useCustomerPage } from "@/hooks/useCustomerPage";
+import { useState } from "react";
 import AddCustomerForm from '@/components/Customers/AddCustomerForm'
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { HandCoins } from 'lucide-react';
@@ -14,10 +13,7 @@ export default function Customer() {
     const navigate = useNavigate()
     const [addIsOpen, setAddIsOpen] = useState(false);
 
-    const { data: customer, isLoading: customerLoading } = useQuery({
-        queryKey: ["customers-table"],
-        queryFn: getAllCustomer,
-    })
+    const { data, isLoading, controls } = useCustomerPage();
 
     const supplierColumns = [
         { key: "id", label: "الرمز", sortable: true, hidden: true },
@@ -28,19 +24,14 @@ export default function Customer() {
         { key: "updatedDate", label: "اخر عملية", sortable: true },
     ];
 
-    const customersDebt = useMemo(()=>{
-        return customer
-            ?.filter(c => c.balance < 0)
-            .reduce((sum, c) => sum + Number(c.balance), 0) || 0;
-    }, [customer])
-
     return (
       <DashboardLayout>
         {/* البطاقات الإحصائية */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="ديون على الزبائن"
-            value={formatNumber(-customersDebt) || 0}
+            value={data ? formatNumber(data.totalDebt) : "—"}
+            loading={isLoading}
             icon={HandCoins}
           />
         </div>
@@ -54,19 +45,9 @@ export default function Customer() {
             />
           }
           columns={supplierColumns}
-          data={
-            customer
-              ? Object.values(customer).map((supplier) => {
-                  if (typeof supplier === "object") {
-                    return {
-                      ...supplier,
-                      purchasesCount: (supplier as any).purchases?.length ?? 0,
-                    };
-                  }
-                  return supplier;
-                })
-              : []
-          }
+          data={data?.items ?? []}
+          isLoading={isLoading}
+          remote={controls}
           onRowClick={(row) => {
             navigate("/customerDetails", {
               state: { id: row.id },

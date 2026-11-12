@@ -5,10 +5,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import SupplierSelect from '@/components/Products/SupplierSelect';
 import { Button } from '@/components/ui/button';
 import PopupForm from '@/components/ui/custom/PopupForm';
-import getAllSupplier from '@/services/supplier';
-import { useQuery } from '@tanstack/react-query';
+import { useSupplierPage } from "@/hooks/useCustomerPage";
 import { HandCoins } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Suppliers() {
@@ -18,10 +17,7 @@ export default function Suppliers() {
     const [supplierId, setSupplierId] = useState<string | number | null>(null);
 
 
-    const { data: suppliers, isLoading: suppliersLoading } = useQuery({
-        queryKey: ["suppliers-table"],
-        queryFn: getAllSupplier,
-    })
+    const { data, isLoading, controls } = useSupplierPage();
 
     const supplierColumns = [
         { key: "id", label: "الرمز", sortable: true, hidden: true },
@@ -32,26 +28,19 @@ export default function Suppliers() {
         { key: "updatedDate", label: "اخر عملية", sortable: true },
     ];
 
-    const suppliersDebt = useMemo(() => {
-        return suppliers
-            ?.filter((c) => c.balance > 0)
-            .reduce((sum, c) => sum + Number(c.balance), 0) || 0;
-    },  [suppliers])
-
-
     return (
         <DashboardLayout>
             {/* البطاقات الإحصائية */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title="ديون للموردين"
-                    value={formatNumber(suppliersDebt) || 0}
+                    value={data ? formatNumber(data.totalDebt) : "—"}
                     icon={HandCoins}
-                    loading={suppliersLoading}
+                    loading={isLoading}
                 />
             </div>
             <DataTable
-                isLoading={suppliersLoading}
+                isLoading={isLoading}
                 title='الموردين'
                 titleButton={
                     <PopupForm
@@ -75,17 +64,8 @@ export default function Suppliers() {
                     </PopupForm>
                 }
                 columns={supplierColumns}
-                data={suppliers ?
-                    Object.values(suppliers).map(supplier => {
-                        if (typeof supplier === 'object') {
-                            return {
-                                ...supplier,
-                                purchasesCount: (supplier as any).purchases?.length ?? 0
-                            };
-                        }
-                        return supplier;
-                    })
-                : []}
+                data={data?.items ?? []}
+                remote={controls}
                 onRowClick={(row) => {
                     navigate("/SupplierDetails", {
                         state: { id: row.id },

@@ -1,3 +1,5 @@
+import { supplierQueryKey } from "@/services/supplier";
+import { customerSummaryKey } from "@/services/customer";
 import { formatNumber } from "@/lib/numbers";
 import { updateCustomer } from "@/services/customer";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -91,7 +93,7 @@ export default function DetailsInputs({
       originalCustomerRef.current = structuredClone(updatedCustomer);
       setIsChanged(false);
 
-      queryClient.invalidateQueries({ queryKey: ["customers-table"] });
+      queryClient.invalidateQueries({ queryKey: customerSummaryKey });
 
       toast.success("تم حفظ التعديلات!");
     },
@@ -114,7 +116,8 @@ export default function DetailsInputs({
       originalCustomerRef.current = structuredClone(updatedSupplier);
       setIsChanged(false);
 
-      queryClient.invalidateQueries({ queryKey: ["suppliers-table"] });
+      queryClient.invalidateQueries({ queryKey: supplierQueryKey });
+      queryClient.invalidateQueries({ queryKey: ["supplier-details", updatedSupplier.id] });
 
       toast.success("تم حفظ التعديلات!");
     },

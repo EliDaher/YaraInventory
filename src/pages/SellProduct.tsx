@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import FormInput from '@/components/ui/custom/FormInput'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import getAllCustomer from '@/services/customer'
+import { customerSummaryKey } from '@/services/customer'
+import { useCustomerPage } from "@/hooks/useCustomerPage";
 import getAllProducts from '@/services/products'
 import { sell, sellProducts } from '@/services/transaction'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -21,7 +22,7 @@ export default function SellProduct() {
   const [discount, setDiscount] = useState('');
   const [Amount, setAmount] = useState('');
   const [finalAmount, setFinalAmount] = useState(0);
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
   const [isDebt, setIsDebt] = useState<'cash' | 'part' | 'debt'>('cash');
   const [partValue, setPartValue] = useState('');
   const [operationDate, setOperationDate] = useState('');
@@ -33,13 +34,14 @@ export default function SellProduct() {
   const sellProductMutation = useMutation({
       mutationFn: (dataToSend: sell) => sellProducts({ newSell: dataToSend }),
       onSuccess: () => {
+        void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
         toast.success("تم بيع المنتج بنجاح!");
 
         setSelectedProducts([]);
         setDiscount('');
         setAmount('');
         setFinalAmount(0);
-        setSelectedRows([]);
+        setSelectedCustomerId(undefined);
         setIsDebt('cash');
         setPartValue('');
         setOperationDate('');
@@ -56,21 +58,6 @@ export default function SellProduct() {
 
 
 
-  const isRowSelected = (row: any) => {
-    return selectedRows.some((r) => JSON.stringify(r) === JSON.stringify(row));
-  };
-
-  const toggleRowSelection = (row: any) => {
-  setSelectedRows((prev) => {
-    const isSelected = isRowSelected(row);
-      if (isSelected) {
-        return prev.filter((r) => JSON.stringify(r) !== JSON.stringify(row));
-      } else {
-        return [row];
-      }
-    });
-  };
-
   const { data: products, isLoading: productsLoading } = useQuery({
     queryKey: ["products-table"],
     queryFn: getAllProducts,
@@ -80,10 +67,7 @@ export default function SellProduct() {
     setFinalAmount(roundNumber(decimal(Amount || 0).minus(roundNumber(discount || 0))))
   }, [discount, Amount]);
 
-  const { data: customers, isLoading: customersLoading } = useQuery({
-    queryKey: ["customers-table"],
-    queryFn: getAllCustomer,
-  });
+  const { data: customers, isLoading: customersLoading, controls } = useCustomerPage();
   const customerColumns = [
     { key: "id", label: "الرمز", sortable: true, hidden: true },
     { key: "name", label: "الاسم", sortable: true },
@@ -107,10 +91,12 @@ export default function SellProduct() {
                 className='w-full mb-2'
               />}
               columns={customerColumns || []}
-              data={customers || []}
-              onRowClick={(row) => toggleRowSelection(row)}
+              data={customers?.items ?? []}
+              isLoading={customersLoading}
+              remote={controls}
+              onRowClick={(row) => setSelectedCustomerId(previous => previous === row.id ? undefined : row.id)}
               getRowClassName={(row) =>
-                selectedRows?.some(r => r === row)
+                selectedCustomerId === row.id
                   ? "bg-green-50 hover:bg-green-100"
                   : ""
               }
@@ -194,13 +180,13 @@ export default function SellProduct() {
               onClick={(e) => {
                 e.preventDefault()
 
-                if(selectedRows.length <= 0){
+                if(!selectedCustomerId){
                   toast.error('الرجاء التأكد من اختيار زبون')
                   return
                 }
                 
                 sellProductMutation.mutate({
-                  customerId: selectedRows.length > 0 ? selectedRows[0].id : "نقدي",
+                  customerId: selectedCustomerId ?? "نقدي",
                   totalPrice: finalAmount,
                   discount: roundNumber(discount || 0),
                   products: selectedProducts,

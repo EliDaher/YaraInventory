@@ -1,5 +1,22 @@
 import apiClient from "@/lib/axios";
 
+import type { CustomerPage, CustomerPageParams, CustomerSummary } from "./customer";
+
+export const supplierQueryKey = ["suppliers-table"] as const;
+export const supplierSummaryQuery = {
+  queryKey: [...supplierQueryKey, "summary"] as const,
+  queryFn: async ({ signal }: { signal: AbortSignal }) =>
+    (await apiClient.get<CustomerSummary[]>("/api/suppliers/summary", { signal })).data,
+};
+
+export function supplierPageQuery(params: CustomerPageParams) {
+  return {
+    queryKey: [...supplierQueryKey, "page", params] as const,
+    queryFn: async ({ signal }: { signal: AbortSignal }) =>
+      (await apiClient.get<CustomerPage>("/api/suppliers/page", { params, signal })).data,
+  };
+}
+
 export default async function getAllSupplier() {
   try {
     const response = await apiClient.get("/api/suppliers");

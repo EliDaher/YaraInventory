@@ -1,3 +1,4 @@
+import { customerSummaryKey } from "@/services/customer";
 import { decimal, roundNumber } from "@/lib/numbers";
 import React, { useState } from "react";
 import PopupForm from "../ui/custom/PopupForm";
@@ -27,6 +28,7 @@ export default function CustomerPaymentForm({ isOpen, setIsOpen, customerData })
   const payCustomerDebtMutation = useMutation({
     mutationFn: (dataToSend: any) => payCustomerDebt(dataToSend as any),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: customerSummaryKey });
       toast.success("تم إضافة الدفعة بنجاح!");
       setAmount(0);
       setNote("");

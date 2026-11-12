@@ -1,3 +1,4 @@
+import { customerSummaryKey } from "@/services/customer";
 import React from "react";
 import PopupForm from "../ui/custom/PopupForm";
 import { Button } from "../ui/button";
@@ -21,7 +22,7 @@ export default function CustomerSelect({ isOpen, setIsOpen, className }) {
       setIsOpen(false);
 
       queryClient.invalidateQueries({
-        queryKey: ["customers-table"],
+        queryKey: customerSummaryKey,
       });
     },
     onError: (error) => {

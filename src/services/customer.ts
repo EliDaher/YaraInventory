@@ -1,10 +1,21 @@
 import { Customer } from "@/components/Customers/DetailsInputs";
 import apiClient from "@/lib/axios";
 
-export default async function getAllCustomer() {
+export interface CustomerSummary {
+  id: string;
+  name: string;
+  number?: string;
+  balance: number;
+  updatedDate: string;
+  purchasesCount: number;
+}
+
+export const customerSummaryKey = ["customers-summary"] as const;
+
+export async function getCustomerSummary(): Promise<CustomerSummary[]> {
 
     try {
-        const response = await apiClient.get("/api/customers");
+        const response = await apiClient.get<CustomerSummary[]>("/api/customers/summary");
         return response.data
       
     } catch (err) {
@@ -14,6 +25,33 @@ export default async function getAllCustomer() {
     }
 
 }
+export interface CustomerPageParams {
+  page: number;
+  pageSize: number;
+  search?: string;
+  sortBy?: string;
+  sortDirection?: "asc" | "desc";
+}
+
+export interface CustomerPage {
+  items: CustomerSummary[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalDebt: number;
+  totalBalance: number;
+}
+
+export const defaultCustomerPage: CustomerPageParams = { page: 1, pageSize: 10 };
+
+export function customerPageQuery(params: CustomerPageParams) {
+  return {
+    queryKey: [...customerSummaryKey, params] as const,
+    queryFn: async ({ signal }: { signal: AbortSignal }) =>
+      (await apiClient.get<CustomerPage>("/api/customers/page", { params, signal })).data,
+  };
+}
+
 export async function addCustomer({
   name,
   number,
